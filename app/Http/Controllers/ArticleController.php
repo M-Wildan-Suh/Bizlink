@@ -179,8 +179,8 @@ class ArticleController extends Controller
         
         $filter = $status === 'schedule' ? 1 : 0;
 
-        $data = Article::with('articleshow')
-            ->when($filterweb === 'main', function ($query) {
+        $data = Article::
+            when($filterweb === 'main', function ($query) {
                 $query->whereNull('guardian_web_id');
             })
             ->when($filterweb && $filterweb != 'main' && $filterweb != 'all', function ($query) use ($filterweb) {
@@ -209,7 +209,7 @@ class ArticleController extends Controller
             })
             ->latest()
             ->simplePaginate(20);
-        
+            
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
         }
@@ -225,7 +225,7 @@ class ArticleController extends Controller
         
         $filter = $status === 'schedule' ? 1 : 0;
 
-        $data = Article::with('articleshow')->where('article_type', 'spintax')
+        $data = Article::where('article_type', 'spintax')
             ->when($filterweb === 'main', function ($query) {
                 $query->whereNull('guardian_web_id');
             })
@@ -255,7 +255,7 @@ class ArticleController extends Controller
             })
             ->latest()
             ->simplePaginate(20);
-
+            
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
         }
@@ -271,7 +271,7 @@ class ArticleController extends Controller
         
         $filter = $status === 'schedule' ? 1 : 0;
 
-        $data = Article::with('articleshow')->where('article_type', 'unique')
+        $data = Article::where('article_type', 'unique')
             ->when($filterweb === 'main', function ($query) {
                 $query->whereNull('guardian_web_id');
             })
@@ -301,7 +301,7 @@ class ArticleController extends Controller
             })
             ->latest()
             ->simplePaginate(20);
-
+            
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
         }
