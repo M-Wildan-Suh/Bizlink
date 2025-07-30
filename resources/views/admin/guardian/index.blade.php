@@ -42,7 +42,7 @@
                         <tr class="{{ $loop->even ? 'bg-neutral-100' : 'bg-neutral-200' }} h-10 text-neutral-600 divide-x-2 divide-white">
                             <td class="px-3 py-1 text-center font-semibold">{{ $loop->iteration }}</td>
                             <td class="px-2 sm:px-4 py-1 min-h-10 font-semibold break-all">
-                                <a href="{{$item->url}}" class=" hover:text-byolink-1 duration-300 line-clamp-1" target="__blank">{{$item->url}}</a>
+                                <a href="https://{{$item->url}}" class=" hover:text-byolink-1 duration-300 line-clamp-1" target="__blank">{{$item->url}}</a>
                             </td>
                             <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center">{{$item->spintaxcount}} ({{$item->spincount}})</td>
                             <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center">{{$item->uniquecount}}</td>

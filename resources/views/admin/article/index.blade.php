@@ -1,8 +1,8 @@
 <x-app-layout head="Artikel" title="Admin - Artikel">
     <div class="sm:pl-12 sm:pr-12 lg:pr-32 duration-300 pt-8 pb-20 sm:pb-8 px-4 space-y-4">
         <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20 flex flex-col gap-6">
-            <div class="w-full flex flex-col md:flex-row gap-4 justify-between items-center">
-                <div class=" w-full md:w-auto grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+            <div class="w-full flex flex-col lg:flex-row gap-4 justify-between items-center">
+                <div class=" w-full lg:w-auto grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                     <a href="{{ route('article.create') }}"
                         class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
                         +Artikel Spintax
@@ -19,11 +19,11 @@
                 </div>
 
                 <!-- Search -->
-                <div class=" w-full md:w-auto flex flex-row font-semibold duration-300">
+                <div class=" w-full lg:w-auto flex flex-row font-semibold duration-300">
                     <form action="{{ url()->current() }}" class=" w-full">
                         <input type="text" placeholder="Cari Judul..." name="search"
                             value="{{ urlencode(request('search')) ?? '' }}"
-                            class=" w-full text-sm sm:text-base md:w-auto py-2 px-3 border border-byolink-1 rounded-md overflow-hidden focus-within:border-byolink-3 font-normal">
+                            class=" w-full text-sm sm:text-base lg:w-auto py-2 px-3 border border-byolink-1 rounded-md overflow-hidden focus-within:border-byolink-3 font-normal">
                     </form>
                 </div>
             </div>
