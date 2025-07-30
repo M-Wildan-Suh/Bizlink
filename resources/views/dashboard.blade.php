@@ -67,7 +67,9 @@
                         <tbody x-data="{ list : false }">
                             <tr class="{{ $loop->even ? 'bg-neutral-100' : 'bg-neutral-200' }} h-10 text-neutral-600 divide-x-2 divide-white">
                                 <td class="px-3 py-1 text-center font-semibold">{{ $loop->iteration }}</td>
-                                <td class="px-2 sm:px-4 py-1 min-h-10 font-semibold text-nowrap max-w-28 sm:max-w-full line-clamp-1">{{$item->url}}</td>
+                                <td class="px-2 sm:px-4 py-1 min-h-10 font-semibold break-all">
+                                    <p class=" line-clamp-1">{{$item->url}}</p>
+                                </td>
                                 <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center">{{$item->spintaxcount}} ({{$item->spincount}})</td>
                                 <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center">{{$item->uniquecount}}</td>
                                 <td class="px-1 sm:px-2">
