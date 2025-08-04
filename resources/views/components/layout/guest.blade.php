@@ -43,7 +43,7 @@
         @pageshow.window="loading = false">
         <!-- Loading overlay -->
         <div x-show="loading" 
-            class="fixed inset-0 z-[200] flex items-center justify-center bg-background"
+            class="fixed inset-0 z-[200] flex items-center justify-center bg-white"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100"
@@ -52,9 +52,9 @@
             x-transition:leave-end="opacity-0">
             <!-- Animasi tiga titik meloncat -->
             <div class="flex space-x-2">
-                <div class="dot w-4 h-4 bg-main rounded-full animate-bounce delay-0"></div>
-                <div class="dot w-4 h-4 bg-second rounded-full animate-bounce delay-200"></div>
-                <div class="dot w-4 h-4 bg-third rounded-full animate-bounce delay-400"></div>
+                <div class="dot w-4 h-4 bg-byolink-1 rounded-full animate-bounce delay-0"></div>
+                <div class="dot w-4 h-4 bg-byolink-2 rounded-full animate-bounce delay-200"></div>
+                <div class="dot w-4 h-4 bg-byolink-3 rounded-full animate-bounce delay-400"></div>
             </div>
         </div>
 

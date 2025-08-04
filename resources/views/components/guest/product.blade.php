@@ -7,10 +7,10 @@
                         class=" w-full h-full object-cover" alt="">
                 </div>
             </a>
-            <div class=" absolute bottom-2 left-2 w-full flex flex-wrap gap-2">
+            <div class=" absolute bottom-2 left-0 w-full px-2 flex flex-wrap gap-2 overflow-hidden">
                 @foreach ($item->articles->articlecategory as $category)
                     <a href="{{route('category', ['category' => $category->slug])}}" aria-label="{{$category->category}}">
-                        <div class=" py-0.5 px-3 bg-white text-gray-600 text-xs rounded-full">{{$category->category}}</div>
+                        <div class=" py-0.5 px-3 bg-white text-gray-600 text-xs rounded-full line-clamp-1">{{$category->category}}</div>
                     </a>
                 @endforeach
             </div>

@@ -8,9 +8,23 @@ use App\Models\ArticleShow;
 use App\Models\GuardianWeb;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class GuardianWebController extends Controller
 {
+    public function export() {
+        // Ambil semua data GuardianWeb dan ambil hanya field 'url'
+        $urls = GuardianWeb::pluck('url');
+
+        // Gabungkan URL menjadi string dengan newline
+        $content = $urls->implode(PHP_EOL);
+
+        // Siapkan response untuk download
+        return Response::make($content, 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => 'attachment; filename="guardian_urls.txt"',
+        ]);
+    }
     /**
      * Display a listing of the resource.
      */

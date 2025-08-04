@@ -13,7 +13,7 @@
                                     <div class=" w-full flex flex-wrap gap-2">
                                         @foreach ($item->articles->articlecategory as $category)
                                             <a href="{{route('category', ['category' => $category->slug])}}">
-                                                <div class=" py-0.5 px-3 bg-white text-gray-600 text-xs rounded-full">{{$category->category}}</div>
+                                                <div class=" py-0.5 px-3 bg-white text-gray-600 text-xs line-clamp-1 rounded-full">{{$category->category}}</div>
                                             </a>
                                         @endforeach
                                     </div>
@@ -49,7 +49,7 @@
                                 <div class=" w-full flex flex-wrap gap-2">
                                     @foreach ($item->articles->articlecategory as $category)
                                         <a href="{{route('category', ['category' => $category->slug])}}">
-                                            <div class=" py-0.5 px-3 bg-white text-gray-600 text-xs rounded-full">{{$category->category}}</div>
+                                            <div class=" py-0.5 px-3 bg-white text-gray-600 text-xs line-clamp-1 rounded-full">{{$category->category}}</div>
                                         </a>
                                     @endforeach
                                 </div>

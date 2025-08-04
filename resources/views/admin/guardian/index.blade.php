@@ -2,13 +2,20 @@
     <div class="sm:pl-12 sm:pr-12 lg:pr-32 duration-300 pt-8 pb-20 sm:pb-8 px-4 space-y-4">
         <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20 flex flex-col gap-6">
             <div class="w-full flex flex-col md:flex-row gap-4 justify-between items-center">
-                <div class=" w-full md:w-auto">
+                <div class=" w-full md:w-auto flex gap-2">
                     <a href="{{ route('guardian.create') }}">
                         <button
                             class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
                             Tambah Web
                         </button>
                     </a>
+                    <a href="{{ route('guardian.export') }}" target="__blank">
+                        <button
+                            class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
+                            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M18 22a2 2 0 0 0 2-2v-5l-5 4v-3H8v-2h7v-3l5 4V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12zM13 4l5 5h-5V4z"/></svg>
+                        </button>
+                    </a>
+                    
                 </div>
 
                 <!-- Search -->

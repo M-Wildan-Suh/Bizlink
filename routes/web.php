@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/admin/template/edit-image/{id}', [TemplateController::class, 'editimage'])->name('template.editimage');
 
         Route::resource('/admin/guardian', GuardianWebController::class);
+        Route::get('/admin/guardian-export', [GuardianWebController::class, 'export'])->name('guardian.export');
     });
 
     Route::resource('/admin/phone-number', PhoneNumberController::class);
