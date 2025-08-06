@@ -236,18 +236,17 @@ class ArticleController extends Controller
             ->when($request->search, function ($query) use ($request) {
                 $query->where('judul', 'like', '%' . $request->search . '%');
             })
+            ->withCount(['articleshow as articleshow_private_count' => function ($query) {
+                $query->where('status', 'private');
+            }])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
+                
                 if ($status === 'private') {
-                    $query->whereHas('articleshow', function ($q) {
-                        $q->where('status', 'private');
-                    });
+                    $query->where('articleshow_private_count', '>', 0);
                 } else {
-                    $query->whereDoesntHave('articleshow', function ($q) {
-                        $q->where('status', 'private');
-                    });
+                    $query->where('articleshow_private_count', '=', 0);
                 }
-                return $query;
             })
             ->latest()
             ->simplePaginate(20);
@@ -282,18 +281,17 @@ class ArticleController extends Controller
             ->when($request->search, function ($query) use ($request) {
                 $query->where('judul', 'like', '%' . $request->search . '%');
             })
+            ->withCount(['articleshow as articleshow_private_count' => function ($query) {
+                $query->where('status', 'private');
+            }])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
+                
                 if ($status === 'private') {
-                    $query->whereHas('articleshow', function ($q) {
-                        $q->where('status', 'private');
-                    });
+                    $query->where('articleshow_private_count', '>', 0);
                 } else {
-                    $query->whereDoesntHave('articleshow', function ($q) {
-                        $q->where('status', 'private');
-                    });
+                    $query->where('articleshow_private_count', '=', 0);
                 }
-                return $query;
             })
             ->latest()
             ->simplePaginate(20);
