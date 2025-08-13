@@ -317,6 +317,7 @@ class ArticleController extends Controller
             ->when($request->search, function ($query) use ($request) {
                 $query->where('judul', 'like', '%' . $request->search . '%');
             })
+            ->latest()
             ->paginate(10);
 
         return view('admin.article.index-spin', compact('article', 'data', 'count'));
