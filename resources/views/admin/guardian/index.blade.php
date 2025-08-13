@@ -99,8 +99,8 @@
                     @endforeach
                 </tbody>
                 <tr>
-                    <td id="loader" colspan="5" class=" text-center text-neutral-600 h-10">
-                        Loading...
+                    <td id="loader" colspan="6" class=" text-center text-neutral-600 h-10">
+                        {{$data->count() > 20 ? 'Loading...' : 'Semua data telah dimuat'}}
                     </td>
                 </tr>
             </table>

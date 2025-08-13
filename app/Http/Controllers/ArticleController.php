@@ -313,7 +313,7 @@ class ArticleController extends Controller
 
         $article = Article::find($id);
 
-        $data = ArticleShow::where('article_id', $id)
+        $data = ArticleShow::with('articles.guardian')->where('article_id', $id)
             ->when($request->search, function ($query) use ($request) {
                 $query->where('judul', 'like', '%' . $request->search . '%');
             })

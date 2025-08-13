@@ -95,6 +95,7 @@
                         <th class=" px-1 sm:px-2 py-1 relative">Judul</th>
                         <th class=" px-1 sm:px-2 py-1 relative hidden md:table-cell">Kategori</th>
                         <th class=" px-1 sm:px-2 py-1 relative hidden md:table-cell">Author</th>
+                        <th class=" px-1 sm:px-2 py-1 relative hidden md:table-cell">Guardian</th>
                         <th class=" px-1 sm:px-2 py-1 w-[90px] sm:w-[100px] rounded-tr-md">Opsi</th>
                     </tr>
                 </thead>
@@ -102,8 +103,8 @@
                     @include('admin.article.row')
                 </tbody>
                 <tr>
-                    <td id="loader" colspan="3" class=" text-center text-neutral-600 h-10">
-                        Loading...
+                    <td id="loader" colspan="6" class=" text-center text-neutral-600 h-10">
+                        {{$data->count() > 20 ? 'Loading...' : 'Semua data telah dimuat'}}
                     </td>
                 </tr>
             </table>

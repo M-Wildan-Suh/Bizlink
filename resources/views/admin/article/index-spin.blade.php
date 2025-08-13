@@ -68,7 +68,7 @@
                         <td class="px-3 py-1 text-center font-semibold">{{ $loop->iteration }}</td>
                         <td class="px-2 sm:px-4 py-1 min-h-10 font-semibold flex">
                             <p class="line-clamp-2">
-                                <a href="{{ $item->articles->guardian ? 'https://'.$item->articles->guardian->url.'/'.$item->slug : route('business', ['slug' => $item->slug]) }}">{{$item->judul}}</a>
+                                <a href="{{ $item->articles->guardian ? 'https://'.$item->articles->guardian->url.'/'.$item->slug : route('business', ['slug' => $item->slug]) }}" rel="noopener noreferrer" target="_blank">{{$item->judul}}</a>
                             </p>
                         </td>
                         <td class="px-1 sm:px-2">

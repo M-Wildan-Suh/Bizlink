@@ -16,6 +16,7 @@
             @endforeach
         </td>
         <td class="px-3 py-1 text-center text-nowrap hidden md:table-cell">{{ $item->user->name }}</td>
+        <td class="px-3 py-1 text-center text-nowrap hidden md:table-cell">{{ $item->guardian ? $item->guardian->url : 'Main' }}</td>
         <td class="px-1 sm:px-2">
             <div class="flex gap-1 sm:gap-2 justify-center">
                 <button @click="detail({{ $item->id }})"

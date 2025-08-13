@@ -25,8 +25,8 @@ class Article extends Model
     public function user() {
         return $this->belongsTo(User::class);
     }
-    public function guardian(){
-        return $this->belongsTo(GuardianWeb::class);
+    public function guardian() {
+        return $this->belongsTo(GuardianWeb::class, 'guardian_web_id');
     }
     public function articletag()
     {
