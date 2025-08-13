@@ -23,10 +23,10 @@ class ArticleGeneratedController extends Controller
     public function index(Request $request)
     {
         if ($request->search) {
-            $data = Article::where('article_type', 'spintax')->where('judul', 'like', '%' . $request->search . '%')->paginate(10);
+            $data = Article::where('article_type', 'spintax')->where('judul', 'like', '%' . $request->search . '%')->latest()->paginate(10);
 
         } else {
-            $data = Article::where('article_type', 'spintax')->with('articleshow')->paginate(10);
+            $data = Article::where('article_type', 'spintax')->with('articleshow')->latest()->paginate(10);
         }
         return view('admin.article.index' ,compact('data'));
     }
