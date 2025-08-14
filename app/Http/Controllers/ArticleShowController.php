@@ -364,14 +364,11 @@ class ArticleShowController extends Controller
                 ->withErrors($e->validator);
         }
         
-        $summernote = preg_replace('/(<li[^>]*>)\s*<br\s*\/?>/i', '$1', $request->article);
-        $summernote = preg_replace('/<br\s*\/?>\s*(?=<\/li>)/i', '', $summernote);
-        
         // dd($request);
         $newarticle = Article::find($articleShow->article_id);
-        
+
         $newarticle->judul = $request->judul;
-        $newarticle->article = $summernote;
+        $newarticle->article = $request->article;
         $newarticle->guardian_web_id = $request->guardian;
 
         if ($request->status === "schedule") {
