@@ -56,12 +56,13 @@ class AdminController extends Controller
 
         $data->prepend($manual);
 
+        $guardian = $this->formatCount(GuardianWeb::all()->count());
         $sc = $this->formatCount(SourceCode::all()->count());
         $spintax = $this->formatCount(Article::where('article_type', 'spintax')->get()->count());
         $spin = $this->formatCount(ArticleShow::whereHas('articles', function ($query) {
             $query->where('article_type', 'spintax');
         })->count());
         $unique = $this->formatCount(Article::where('article_type', 'unique')->get()->count());
-        return view('dashboard', compact('data', 'sc', 'spintax', 'spin', 'unique'));
+        return view('dashboard', compact('data', 'sc', 'spintax', 'spin', 'unique' ,'guardian'));
     }
 }

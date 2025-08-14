@@ -38,6 +38,18 @@
                                 </div>
                             </div>
                         </a>
+                        <a href="{{route('article-show.create')}}">
+                            <div class="w-full flex justify-center">
+                                <div class=" relative text-xs sm:text-sm text-neutral-600 hover:text-byolink-1 duration-300 flex flex-col items-center text-center gap-1 sm:gap-2">
+                                    <div class=" w-6 sm:w-8 aspect-square">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 1H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h14a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4ZM9 4a1 1 0 1 1-1 1 1 1 0 0 1 1-1ZM5 4a1 1 0 1 1-1 1 1 1 0 0 1 1-1Zm14 5H5a1 1 0 0 1 0-2h14a1 1 0 0 1 0 2Zm0-3a1 1 0 1 1 1-1 1 1 0 0 1-1 1Z" fill="currentcolor" class="fill-232323"></path></svg>
+
+                                    </div>
+                                    <p class=" line-clamp-1">Guardian Web</p>
+                                    <div class=" absolute bg-red-500 -top-3 -right-3 p-1 overflow-hidden w-7 rounded-full aspect-square text-white font-black text-sm">{{$guardian}}</div>
+                                </div>
+                            </div>
+                        </a>
                         <a href="{{route('sitemap')}}" target="__blank">
                             <div class=" text-xs sm:text-sm text-neutral-600 hover:text-byolink-1 duration-300 flex flex-col items-center text-center gap-1 sm:gap-2">
                                 <div class=" w-6 sm:w-8 aspect-square">
