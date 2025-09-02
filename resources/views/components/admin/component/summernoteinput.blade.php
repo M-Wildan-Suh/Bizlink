@@ -45,12 +45,12 @@
 
     /* Kustomisasi tambahan untuk masing-masing elemen heading */
     .note-editor ol {
-        padding-left: 16px;
+        padding-left: 16px !important;
         list-style-type: decimal;
     }
 
     .note-editor ul {
-        padding-left: 16px;
+        padding-left: 16px !important;
         list-style-type: disc;
     }
 

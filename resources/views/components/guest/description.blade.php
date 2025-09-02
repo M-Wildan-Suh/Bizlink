@@ -73,13 +73,13 @@
 
             .article ol {
                 color: inherit !important;
-                padding-left: 16px;
+                padding-left: 16px !important;
                 list-style-type: decimal;
             }
 
             .article ul {
                 color: inherit !important;
-                padding-left: 16px;
+                padding-left: 16px !important;
                 list-style-type: disc;
             }
 

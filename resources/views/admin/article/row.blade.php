@@ -11,9 +11,7 @@
             @endif
         </td>
         <td class="px-3 py-1 text-center hidden md:table-cell">
-            @foreach ($item->articlecategory as $cat)
-                {{$cat->category}}
-            @endforeach
+            {{ $item->articlecategory->pluck('category')->implode(', ') }}
         </td>
         <td class="px-3 py-1 text-center text-nowrap hidden md:table-cell">{{ $item->user->name }}</td>
         <td class="px-3 py-1 text-center text-nowrap hidden md:table-cell">{{ $item->guardian ? $item->guardian->url : 'Main' }}</td>
@@ -133,13 +131,7 @@
             <div class=" w-full flex flex-col gap-2 text-sm">
                 <div class=" flex flex-row gap-1">
                     <p class=" text-nowrap">Kategori :</p>
-                    @forelse ($item->articlecategory as $cat)
-                        <span>
-                            {{$cat->category}}
-                        </span>
-                    @empty
-                        <p>--</p>
-                    @endforelse
+                    {{ $item->articlecategory->pluck('category')->implode(', ') }}
                 </div>
                 <p>Author : {{ $item->user->name }}</p>
             </div>
