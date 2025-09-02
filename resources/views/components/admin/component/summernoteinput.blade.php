@@ -27,6 +27,11 @@
     });
 </script>
 <style>
+    .note-editable div {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
     /* Override gaya default Tailwind untuk h1 hingga h6 */
     .note-editor strong, p, h1, h2, h3, h4, h5, h6 {
         color: inherit !important;
