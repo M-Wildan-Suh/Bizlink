@@ -50,6 +50,7 @@
 
             .article strong,
             span,
+            li,
             p,
             h1,
             h2,
