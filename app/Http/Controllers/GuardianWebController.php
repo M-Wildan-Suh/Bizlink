@@ -51,7 +51,7 @@ class GuardianWebController extends Controller
         if ($request->input('page', 1) == 1) {
             $manual = new \stdClass();
             $manual->id = -1;
-            $manual->url = 'Main';
+            $manual->url = 'bizlink.sites.id';
             $manual->code = null;
             $manual->spintaxcount = Article::whereNull('guardian_web_id')->where('article_type', 'spintax')->count();
             $manual->spincount = ArticleShow::whereHas('articles', function ($query) {
@@ -147,10 +147,12 @@ class GuardianWebController extends Controller
             $item->save();
         }
 
-        $articles = Article::whereIn('id', $request->article)->get();
-        foreach ($articles as $item) {
-            $item->guardian_Web_id = $guardianWeb->id;
-            $item->save();
+        if ($request->article) {
+            $articles = Article::whereIn('id', $request->article)->get();
+            foreach ($articles as $item) {
+                $item->guardian_Web_id = $guardianWeb->id;
+                $item->save();
+            }
         }
         
         return redirect()->route('guardian.index');

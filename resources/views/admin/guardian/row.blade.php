@@ -1,6 +1,6 @@
 @foreach ($data as $item)
-    <tr class="{{ $loop->even ? 'bg-neutral-200' : 'bg-neutral-100' }} h-10 text-neutral-600 divide-x-2 divide-white">
-        <td class="px-3 py-1 text-center font-semibold">{{ {{ $loop->iteration + 1 + ($data->currentPage() - 1) * 20 }} }}</td>
+    <tr class="{{ $data->currentPage() == 1 ? ($loop->even ? 'bg-neutral-100' : 'bg-neutral-200') : ($loop->even ? 'bg-neutral-200' : 'bg-neutral-100')  }} h-10 text-neutral-600 divide-x-2 divide-white">
+        <td class="px-3 py-1 text-center font-semibold">{{ $loop->iteration + ($data->currentPage() == 1 ? 0 : 1) + ($data->currentPage() - 1) * 20 }}</td>
         <td class="px-2 sm:px-4 py-1 min-h-10 font-semibold break-all">
             <a href="https://{{ $item->url }}" class=" hover:text-byolink-1 duration-300 line-clamp-1"
                 target="__blank">{{ $item->url }}</a>
@@ -14,9 +14,9 @@
                     <div x-data="{ copied: false, original: '{{ $item->code }}' }" class=" w-5 h-5">
                         <button
                             @click="navigator.clipboard.writeText(original).then(() => { 
-                                                            copied = true; 
-                                                            setTimeout(() => copied = false, 1000); 
-                                                        })"
+                                copied = true; 
+                                setTimeout(() => copied = false, 1000); 
+                            })"
                             class="w-5 aspect-square duration-300 hover:text-blue-500 relative"
                             :class="copied ? ' text-green-500' : ''"
                             :aria-label="copied ? 'Sudah Disalin' : 'salin kode'">
@@ -32,6 +32,11 @@
                             </div>
                         </button>
                     </div>
+
+                    <a href="https://{{ $item->url }}/sitemap" target="_blank"
+                        class="w-5 h-5 hover:text-blue-500 duration-300">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title/><g data-name="Layer 2" id="Layer_2"><path fill="currentColor" d="M19,16a3,3,0,0,0-1.48.41L13,12.54V7.82a3,3,0,1,0-2,0v4.72L6.48,16.41A3,3,0,0,0,5,16a3,3,0,1,0,3,3,3,3,0,0,0-.21-1.08L12,14.32l4.21,3.6A3,3,0,0,0,16,19a3,3,0,1,0,3-3Z"/></g></svg>
+                    </a>
 
                     <a href="{{ route('guardian.show', ['guardian' => $item->id]) }}"
                         class="w-5 h-5 hover:text-green-500 duration-300">
