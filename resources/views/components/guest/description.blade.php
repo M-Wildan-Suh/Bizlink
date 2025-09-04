@@ -33,7 +33,7 @@
             }
         @endphp
         <div class=" article ">
-            {!! nl2br($data->article == '' ? '' : $data->article) !!}
+            {!! $data->article == '' ? '' : $data->article !!}
             <div class=" pt-4 flex flex-wrap gap-2">
                 @foreach ($data->articles->articletag as $item)
                     <a href="{{route('tag', ['tag' => $item->slug])}}">
@@ -49,15 +49,15 @@
             }
 
             .article strong,
-            span,
-            li,
-            p,
-            h1,
-            h2,
-            h3,
-            h4,
-            h5,
-            h6 {
+            .article span,
+            .article li,
+            .article p,
+            .article h1,
+            .article h2,
+            .article h3,
+            .article h4,
+            .article h5,
+            .article h6 {
                 color: inherit !important;
                 margin: 0 !important;
                 padding: 0 !important;

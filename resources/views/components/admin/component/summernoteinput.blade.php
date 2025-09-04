@@ -3,7 +3,7 @@
 <div class=" w-full">
     <div class=" w-full flex flex-col max-w-full gap-2 text-sm sm:text-base font-medium">
         <label for="summernote">{{$title}}</label>
-        <textarea id="summernote" name="{{$name}}">{!! nl2br($value == '' ? '' : $value) !!}</textarea>
+        <textarea id="summernote" name="{{$name}}">{!! $value == '' ? '' : $value !!}</textarea>
     </div>
 </div>
 <script>
