@@ -26,6 +26,7 @@ class ArticleController extends Controller
 {
     public function generatearticle($id, Request $request)
     {
+        set_time_limit(180);
         $article = Article::findOrFail($id);
         
         $hasScheduleStatus = $article->articleshow()->where('status', 'schedule')->exists();
