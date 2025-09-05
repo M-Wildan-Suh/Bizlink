@@ -40,21 +40,22 @@ class ArticleController extends Controller
         
         $total = (int) $request->total;
 
-        $maxAttempts = 1000; // Lebih fleksibel
+        $allJudul = ArticleShow::where('article_id', $id)->pluck('judul')->toArray();
+        $allBody  = ArticleShow::where('article_id', $id)->pluck('article')->toArray();
+
+        $maxAttempts = 5000;
         $attempts = 0;
         $savedCount = 0;
 
         while ($savedCount < $total && $attempts < $maxAttempts) {
+            $attempts++;
             $spinnedTitle = $this->spinText($article->judul);
             $spinnedBody = $this->spinText($article->article);
 
-            // Gabungkan keduanya untuk ambil semua tag
             $combinedText = $spinnedTitle . ' ' . $spinnedBody;
 
-            // Ambil semua [tag]
             preg_match_all('/\[[^\]]+\]/', $combinedText, $matches);
 
-            // Ambil tag unik saja
             $tags = array_unique($matches[0] ?? []);
 
             foreach ($tags as $tag) {
@@ -72,41 +73,40 @@ class ArticleController extends Controller
 
             $spinnedBody = str_replace('[pa_judul]', $spinnedTitle, $spinnedBody);
 
-            $isDuplicate = ArticleShow::where('judul', $spinnedTitle)
-                ->orWhere('article', $spinnedBody)
-                ->exists();
-
-            if (!$isDuplicate) {
-                $newArticleShow = new ArticleShow;
-
-                $newArticleShow->article_id = $article->id;
-                $newArticleShow->judul = $spinnedTitle;
-                $newArticleShow->slug = Str::slug($newArticleShow->judul);
-                $newArticleShow->article = $spinnedBody;
-                $newArticleShow->template_id = optional($article->template->random())->id;
-                $newArticleShow->banner = $article->articlebanner->isNotEmpty() ? $article->articlebanner->random()->image : null;
-
-                if ($request->schedule == true) {
-                    $newArticleShow->status = 'schedule';
-                } else {
-                    $newArticleShow->status = 'publish';
-                }
-
-                $newArticleShow->save();
-                
-                $galleries = $article->articlegallery->shuffle()->take(6);
-                foreach ($galleries as $gallery) {
-                    $showGallery = new ArticleShowGallery;
-                    $showGallery->article_show_id = $newArticleShow->id;
-                    $showGallery->article_gallery_id = $gallery->id;
-                    $showGallery->image = $gallery->image;
-                    $showGallery->image_alt = $gallery->image_alt;
-                    $showGallery->save();
-                }
-                $savedCount++;
+            if (in_array($spinnedTitle, $allJudul, true) || in_array($spinnedBody, $allBody, true)) {
+                continue;
             }
 
-            $attempts++;
+            $newArticleShow = new ArticleShow;
+
+            $newArticleShow->article_id = $article->id;
+            $newArticleShow->judul = $spinnedTitle;
+            $newArticleShow->slug = Str::slug($newArticleShow->judul);
+            $newArticleShow->article = $spinnedBody;
+            $newArticleShow->template_id = optional($article->template->random())->id;
+            $newArticleShow->banner = $article->articlebanner->isNotEmpty() ? $article->articlebanner->random()->image : null;
+
+            if ($request->schedule == true) {
+                $newArticleShow->status = 'schedule';
+            } else {
+                $newArticleShow->status = 'publish';
+            }
+
+            $newArticleShow->save();
+            
+            $galleries = $article->articlegallery->shuffle()->take(6);
+            foreach ($galleries as $gallery) {
+                $showGallery = new ArticleShowGallery;
+                $showGallery->article_show_id = $newArticleShow->id;
+                $showGallery->article_gallery_id = $gallery->id;
+                $showGallery->image = $gallery->image;
+                $showGallery->image_alt = $gallery->image_alt;
+                $showGallery->save();
+            }
+            $savedCount++;
+
+            $allJudul[] = $spinnedTitle;
+            $allBody[]  = $spinnedBody;
         }
 
         return redirect()->back()->with('status', "$savedCount artikel berhasil dibuat.");
