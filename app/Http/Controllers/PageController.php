@@ -129,7 +129,7 @@ class PageController extends Controller
     public function business($slug) {
         $data = ArticleShow::where('slug', $slug)->first();
 
-        if (!$data) {
+        if (!$data || $data->articles->guardian_web_id) {
             return redirect()->route('not.found');
         }
 
