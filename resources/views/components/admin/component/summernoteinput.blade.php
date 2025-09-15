@@ -16,7 +16,7 @@
                     ['font', ['bold', 'italic', 'underline']], 
                     ['para', ['ul', 'ol', 'paragraph']], 
                     ['insert', ['link']], 
-                    ['view', ['fullscreen']]
+                    ['view', ['fullscreen','codeview']]
                 ],
                 styleTags: [
                     { title: 'Paragraph', tag: 'p', value: 'p' },
