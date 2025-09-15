@@ -346,7 +346,7 @@ class ArticleController extends Controller
                 'judul' => 'required|unique:'.Article::class.'|unique:'.ArticleShow::class,
                 'category' => 'array',
                 'tag' => 'array',
-                'template_id' => 'required|array',
+                'template_id' => 'required|array|min:1',
                 'article' => 'required',
             ]);
     
