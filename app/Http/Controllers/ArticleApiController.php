@@ -241,6 +241,25 @@ class ArticleApiController extends Controller
         ]);
     }
 
+    public function notFound($code) {
+        $web = $this->findWebByCode($code);
+
+        if ($web instanceof \Illuminate\Http\JsonResponse) {
+            return $web; // Return error jika tidak ditemukan
+        }
+
+        $articleIds = $web->articles->pluck('id');
+
+        $categories = ArticleCategory::whereHas('articles', function ($query) use ($articleIds) {
+            $query->whereIn('articles.id', $articleIds);
+        })->get();
+
+        return response()->json([
+            'success' => true,
+            'categories' => $categories,
+        ]);
+    }
+
     public function sitemap($code) {
         $web = $this->findWebByCode($code);
 

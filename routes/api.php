@@ -27,4 +27,5 @@ Route::middleware('daily_schedule')->group(function () {
     Route::get('/article/category/{category}/{code}', [ArticleApiController::class, 'indexCategory']);
     Route::get('/article/tag/{tag}/{code}', [ArticleApiController::class, 'indexTag']);
     Route::get('/article/slug/{slug}/{code}', [ArticleApiController::class, 'landingPage']);
+    Route::get('/article/notfound/{code}', [ArticleApiController::class, 'notFound']);
 });
