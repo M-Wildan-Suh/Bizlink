@@ -42,7 +42,13 @@
                         <p class=" text-nowrap font-semibold">: <span class=" text-purple-500">{{$count->private}}</span>/{{$count->all}}</p>
                     </div>
                 </div>
-                <div class=" w-full md:w-auto flex flex-row font-semibold duration-300">
+                <div class=" w-full md:w-auto flex flex-row gap-2 font-semibold duration-300">
+                    <a href="{{ route('article.export', ['id' => $article->id]) }}" target="_blank">
+                        <button
+                            class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-2 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
+                            <svg class=" w-5 sm:w-6" viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M18 22a2 2 0 0 0 2-2v-5l-5 4v-3H8v-2h7v-3l5 4V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12zM13 4l5 5h-5V4z"/></svg>
+                        </button>
+                    </a>
                     <form action="{{ url()->current() }}" class=" w-full">
                         <input type="text" placeholder="Cari Judul..." name="search" value="{{urlencode(request('search')) ?? ''}}"
                             class=" w-full text-sm sm:text-base md:w-auto py-2 px-3 border border-byolink-1 rounded-md overflow-hidden focus-within:border-byolink-3 font-normal">

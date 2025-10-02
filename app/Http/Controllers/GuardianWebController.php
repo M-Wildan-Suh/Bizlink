@@ -8,6 +8,7 @@ use App\Models\ArticleShow;
 use App\Models\GuardianWeb;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
 
 class GuardianWebController extends Controller
@@ -43,6 +44,19 @@ class GuardianWebController extends Controller
                 $query->where('guardian_web_id', $data->id)
                       ->where('article_type', 'spintax');
             })->count();
+
+            $data->template = null;
+
+            try {
+                $response = Http::timeout(5)->get('https://'. $data->url . '/api/'. $data->code);
+                if ($response->successful()) {
+                    $data->template = $response->json()['template'];
+                } else {
+                    $data->template = null;
+                }
+            } catch (\Exception $e) {
+                $data->template = null;
+            }
 
             $data->uniquecount = $data->articles->where('article_type', 'unique')->count();
             return $data;

@@ -5,12 +5,17 @@
             <a href="https://{{ $item->url }}" class=" hover:text-byolink-1 duration-300 line-clamp-1"
                 target="__blank">{{ $item->url }}</a>
         </td>
-        <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center">{{ $item->spintaxcount }}
+        <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center hidden sm:table-cell">{{ $item->template ?? '' }}</td>
+        <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center hidden sm:table-cell">{{ $item->spintaxcount }}
             ({{ $item->spincount }})</td>
-        <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center">{{ $item->uniquecount }}</td>
+        <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap text-center hidden sm:table-cell">{{ $item->uniquecount }}</td>
         <td class="px-1 sm:px-2">
             <div class="flex gap-1 sm:gap-2 items-center justify-center">
-                @if ($item->url != 'Main')
+                <button @click="detail({{ $item->id }})"
+                    class="w-5 h-5 hover:text-green-500 duration-300 block md:hidden">
+                    <svg  id="Layer_1" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" class=" w-full h-full"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path fill="currentColor" d="M98.9,184.7l1.8,2.1l136,156.5c4.6,5.3,11.5,8.6,19.2,8.6c7.7,0,14.6-3.4,19.2-8.6L411,187.1l2.3-2.6  c1.7-2.5,2.7-5.5,2.7-8.7c0-8.7-7.4-15.8-16.6-15.8v0H112.6v0c-9.2,0-16.6,7.1-16.6,15.8C96,179.1,97.1,182.2,98.9,184.7z"/></svg>
+                </button>
+                @if ($item->url != 'bizlink.sites.id')
                     <div x-data="{ copied: false, original: '{{ $item->code }}' }" class=" w-5 h-5">
                         <button
                             @click="navigator.clipboard.writeText(original).then(() => { 
@@ -60,6 +65,15 @@
                         <x-admin.component.deletemodal :title="$item->url" :route="route('guardian.destroy', ['guardian' => $item->id])" />
                     </div>
                 @endif
+            </div>
+        </td>
+    </tr>
+    <tr x-show="openedIds.includes({{ $item->id }})" class="{{ $loop->even ? 'bg-neutral-100' : 'bg-neutral-200' }} md:hidden border-t-2 border-b-2 border-white h-10 text-neutral-600 divide-x-2 divide-white">
+        <td colspan="6" class=" pl-12 p-2">
+            <div class=" w-full flex flex-col gap-2 text-sm">
+                <p>Template : {{ $item->template ?? '' }}</p>
+                <p>Spintax : {{ $item->spintaxcount }} ({{ $item->spincount }})</p>
+                <p>Unique : {{ $item->uniquecount }}</p>
             </div>
         </td>
     </tr>

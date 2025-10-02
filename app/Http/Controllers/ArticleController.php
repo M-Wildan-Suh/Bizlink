@@ -28,7 +28,7 @@ class ArticleController extends Controller
     {
         set_time_limit(180);
         $article = Article::findOrFail($id);
-        
+
         $hasScheduleStatus = $article->articleshow()->where('status', 'schedule')->exists();
 
         if ($hasScheduleStatus) {
@@ -38,7 +38,7 @@ class ArticleController extends Controller
         }
 
         $article->save();
-        
+
         $total = (int) $request->total;
 
         $allJudul = ArticleShow::where('article_id', $id)->pluck('judul')->toArray();
@@ -94,7 +94,7 @@ class ArticleController extends Controller
             }
 
             $newArticleShow->save();
-            
+
             $galleries = $article->articlegallery->shuffle()->take(6);
             foreach ($galleries as $gallery) {
                 $showGallery = new ArticleShowGallery;
@@ -122,11 +122,11 @@ class ArticleController extends Controller
                 return $options[array_rand($options)];
             }, $text);
         }
-    
+
         return $text;
     }
 
-    public function shuffle($id) 
+    public function shuffle($id)
     {
         $article = Article::find($id);
         $articleshow = $article->articleshow;
@@ -177,17 +177,16 @@ class ArticleController extends Controller
         $category = ArticleCategory::all();
 
         $web = GuardianWeb::all();
-        
+
         $filter = $status === 'schedule' ? 1 : 0;
 
-        $data = Article::
-            when($filterweb === 'main', function ($query) {
-                $query->whereNull('guardian_web_id');
-            })
+        $data = Article::when($filterweb === 'main', function ($query) {
+            $query->whereNull('guardian_web_id');
+        })
             ->when($filterweb && $filterweb != 'main' && $filterweb != 'all', function ($query) use ($filterweb) {
                 $query->where('guardian_web_id', $filterweb);
             })
-            ->when($filtercat && $filtercat != 'all', function ($query) use ($filtercat){
+            ->when($filtercat && $filtercat != 'all', function ($query) use ($filtercat) {
                 $query->whereHas('articlecategory', function ($q) use ($filtercat) {
                     $q->where('category_id', $filtercat);
                 });
@@ -197,7 +196,7 @@ class ArticleController extends Controller
             }])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
-                
+
                 if ($status === 'private') {
                     $query->where('articleshow_private_count', '>', 0);
                 } else {
@@ -206,12 +205,12 @@ class ArticleController extends Controller
             })
             ->latest()
             ->simplePaginate(20);
-            
+
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
         }
 
-        return view('admin.article.index' ,compact('data', 'category', 'web', 'status', 'filtercat', 'filterweb'));
+        return view('admin.article.index', compact('data', 'category', 'web', 'status', 'filtercat', 'filterweb'));
     }
 
     public function indexspintax(Request $request, $status = null, $filtercat = null, $filterweb = null)
@@ -219,7 +218,7 @@ class ArticleController extends Controller
         $category = ArticleCategory::all();
 
         $web = GuardianWeb::all();
-        
+
         $filter = $status === 'schedule' ? 1 : 0;
 
         $data = Article::where('article_type', 'spintax')
@@ -229,7 +228,7 @@ class ArticleController extends Controller
             ->when($filterweb && $filterweb != 'main' && $filterweb != 'all', function ($query) use ($filterweb) {
                 $query->where('guardian_web_id', $filterweb);
             })
-            ->when($filtercat && $filtercat != 'all', function ($query) use ($filtercat){
+            ->when($filtercat && $filtercat != 'all', function ($query) use ($filtercat) {
                 $query->whereHas('articlecategory', function ($q) use ($filtercat) {
                     $q->where('category_id', $filtercat);
                 });
@@ -242,7 +241,7 @@ class ArticleController extends Controller
             }])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
-                
+
                 if ($status === 'private') {
                     $query->where('articleshow_private_count', '>', 0);
                 } else {
@@ -251,20 +250,20 @@ class ArticleController extends Controller
             })
             ->latest()
             ->simplePaginate(20);
-            
+
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
         }
 
-        return view('admin.article.index' ,compact('data', 'category', 'web', 'status', 'filtercat', 'filterweb'));
+        return view('admin.article.index', compact('data', 'category', 'web', 'status', 'filtercat', 'filterweb'));
     }
-    
+
     public function indexunique(Request $request, $status = null, $filtercat = null, $filterweb = null)
     {
         $category = ArticleCategory::all();
 
         $web = GuardianWeb::all();
-        
+
         $filter = $status === 'schedule' ? 1 : 0;
 
         $data = Article::where('article_type', 'unique')
@@ -274,7 +273,7 @@ class ArticleController extends Controller
             ->when($filterweb && $filterweb != 'main' && $filterweb != 'all', function ($query) use ($filterweb) {
                 $query->where('guardian_web_id', $filterweb);
             })
-            ->when($filtercat && $filtercat != 'all', function ($query) use ($filtercat){
+            ->when($filtercat && $filtercat != 'all', function ($query) use ($filtercat) {
                 $query->whereHas('articlecategory', function ($q) use ($filtercat) {
                     $q->where('category_id', $filtercat);
                 });
@@ -287,7 +286,7 @@ class ArticleController extends Controller
             }])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
-                
+
                 if ($status === 'private') {
                     $query->where('articleshow_private_count', '>', 0);
                 } else {
@@ -296,15 +295,15 @@ class ArticleController extends Controller
             })
             ->latest()
             ->simplePaginate(20);
-            
+
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
         }
 
-        return view('admin.article.index' ,compact('data', 'category', 'web', 'status', 'filtercat', 'filterweb'));
+        return view('admin.article.index', compact('data', 'category', 'web', 'status', 'filtercat', 'filterweb'));
     }
 
-    public function spin($id, Request $request) 
+    public function spin($id, Request $request)
     {
         $count = new \stdClass();
         $count->all = ArticleShow::where('article_id', $id)->count();
@@ -322,6 +321,36 @@ class ArticleController extends Controller
             ->paginate(10);
 
         return view('admin.article.index-spin', compact('article', 'data', 'count'));
+    }
+
+    public function export($id)
+    {
+        $data = \App\Models\ArticleShow::where('article_id', $id)
+            ->where('status', 'publish')
+            ->get();
+
+        $filename = "articles_" . $id . ".csv";
+
+        return response()->stream(function () use ($data) {
+            $file = fopen('php://output', 'w');
+
+            // tulis header
+            fputcsv($file, ['Judul', 'URL', 'Category']);
+
+            foreach ($data as $item) {
+                fputcsv($file, [
+                    $item->judul,
+                    $item->articles->guardian ? 'https://'.$item->articles->guardian->url.'/'.$item->slug : route('business', ['slug' => $item->slug]),
+                    $item->articles->articlecategory->pluck('category')->implode(', '), // sesuaikan relasi
+                ]);
+            }
+
+            fclose($file);
+        }, 200, [
+            "Content-Type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=\"$filename\"",
+            "Cache-Control"       => "no-store, no-cache",
+        ]);
     }
 
     /**
@@ -343,38 +372,38 @@ class ArticleController extends Controller
     {
         try {
             $validated = $request->validate([
-                'judul' => 'required|unique:'.Article::class.'|unique:'.ArticleShow::class,
+                'judul' => 'required|unique:' . Article::class . '|unique:' . ArticleShow::class,
                 'category' => 'array',
                 'tag' => 'array',
                 'template_id' => 'required|array|min:1',
                 'article' => 'required',
             ]);
-    
+
             // Proses simpan data jika valid
         } catch (ValidationException $e) {
             // Hapus input lama otomatis dari Laravel
             Session::forget('_old_input');
-        
+
             // Set ulang dengan input yang dimodifikasi
             $oldInput = $request->except(['_token', 'image']);
             // $oldInput['judul'] = ($request->input('judul') ?? '') . ' paksa';
             if ($request->has('category')) {
                 $oldInput['category'] = collect($request->category)
                     ->map(fn($item) => (object) ['category' => $item])  // Mengubah setiap item menjadi objek
-                    ->pipe(function($collection) {
+                    ->pipe(function ($collection) {
                         return new \Illuminate\Database\Eloquent\Collection($collection->all());  // Mengubah menjadi Eloquent Collection
                     });
             }
             if ($request->has('tag')) {
                 $oldInput['tag'] = collect($request->tag)
                     ->map(fn($item) => (object) ['tag' => $item])  // Mengubah setiap item menjadi objek
-                    ->pipe(function($collection) {
+                    ->pipe(function ($collection) {
                         return new \Illuminate\Database\Eloquent\Collection($collection->all());  // Mengubah menjadi Eloquent Collection
                     });
             }
-        
+
             Session::flashInput($oldInput);
-        
+
             return redirect()
                 ->back()
                 ->withErrors($e->validator);
@@ -408,7 +437,7 @@ class ArticleController extends Controller
         $newarticle->save();
 
         $newarticle->template()->sync($request->template_id);
-        
+
         $newbanner = new ArticleBanner;
 
         $newbanner->article_id = $newarticle->id;
@@ -418,34 +447,34 @@ class ArticleController extends Controller
             foreach ($request->image_banner as $image) {
                 $newgallery = new ArticleBanner;
                 $newgallery->article_id = $newarticle->id;
-        
+
                 // Pastikan image adalah instance dari UploadedFile
                 if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
                     // Ambil nama file tanpa ekstensi
                     $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
-                    
+
                     // Tambahkan tanggal saat ini
                     $currentDate = now()->format('YmdHis');
-                    
+
                     // Gabungkan nama file dan tanggal input
                     $imageName = $originalName . '_' . $currentDate;
-        
+
                     $imagePath = public_path('storage/images/article/banner/');
 
                     if (!File::exists($imagePath)) {
                         File::makeDirectory($imagePath, 0755, true);
                     }
-        
+
                     $manager = new ImageManager(new Driver());
                     $imageOptimized = $manager->read($image->getPathname());
                     $imageFullPath = $imagePath . $imageName . '.webp';
                     $imageOptimized->save($imageFullPath);
-        
+
                     // Simpan nama file dengan ekstensi .webp
                     $newgallery->image = $imageName . '.webp';
                     $newgallery->image_alt = $imageName;
                 }
-        
+
                 $newgallery->save();
             }
         }
@@ -453,7 +482,7 @@ class ArticleController extends Controller
         // Tag
         if ($request->tag) {
             $tags = array_map(fn($item) => ucfirst($item), $request->tag);
-        
+
             $tagIds = [];
             foreach ($tags as $tagName) {
                 $formattedTagName = Str::title($tagName);
@@ -473,7 +502,7 @@ class ArticleController extends Controller
         // Category
         if ($request->category) {
             $category = array_map(fn($item) => ucfirst($item), $request->category);
-        
+
             $categoryIds = [];
             foreach ($category as $categoryName) {
                 $formattedCategoryName = Str::title($categoryName);
@@ -495,34 +524,34 @@ class ArticleController extends Controller
             foreach ($request->image_gallery as $image) {
                 $newgallery = new ArticleGallery;
                 $newgallery->article_id = $newarticle->id;
-        
+
                 // Pastikan image adalah instance dari UploadedFile
                 if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
                     // Ambil nama file tanpa ekstensi
                     $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
-                    
+
                     // Tambahkan tanggal saat ini
                     $currentDate = now()->format('YmdHis');
-                    
+
                     // Gabungkan nama file dan tanggal input
                     $imageName = $originalName . '_' . $currentDate;
-        
+
                     $imagePath = public_path('storage/images/article/gallery/');
 
                     if (!File::exists($imagePath)) {
                         File::makeDirectory($imagePath, 0755, true);
                     }
-        
+
                     $manager = new ImageManager(new Driver());
                     $imageOptimized = $manager->read($image->getPathname());
                     $imageFullPath = $imagePath . $imageName . '.webp';
                     $imageOptimized->save($imageFullPath);
-        
+
                     // Simpan nama file dengan ekstensi .webp
                     $newgallery->image = $imageName . '.webp';
                     $newgallery->image_alt = $imageName;
                 }
-        
+
                 $newgallery->save();
             }
         }
@@ -569,32 +598,32 @@ class ArticleController extends Controller
                 'template_id' => 'required|array',
                 'article' => 'required',
             ]);
-    
+
             // Proses simpan data jika valid
         } catch (ValidationException $e) {
             // Hapus input lama otomatis dari Laravel
             Session::forget('_old_input');
-        
+
             // Set ulang dengan input yang dimodifikasi
             $oldInput = $request->except(['_token', 'image']);
             // $oldInput['judul'] = ($request->input('judul') ?? '') . ' paksa';
             if ($request->has('category')) {
                 $oldInput['category'] = collect($request->category)
                     ->map(fn($item) => (object) ['category' => $item])  // Mengubah setiap item menjadi objek
-                    ->pipe(function($collection) {
+                    ->pipe(function ($collection) {
                         return new \Illuminate\Database\Eloquent\Collection($collection->all());  // Mengubah menjadi Eloquent Collection
                     });
             }
             if ($request->has('tag')) {
                 $oldInput['tag'] = collect($request->tag)
                     ->map(fn($item) => (object) ['tag' => $item])  // Mengubah setiap item menjadi objek
-                    ->pipe(function($collection) {
+                    ->pipe(function ($collection) {
                         return new \Illuminate\Database\Eloquent\Collection($collection->all());  // Mengubah menjadi Eloquent Collection
                     });
             }
-        
+
             Session::flashInput($oldInput);
-        
+
             return redirect()
                 ->back()
                 ->withErrors($e->validator);
@@ -627,7 +656,7 @@ class ArticleController extends Controller
         if ($request->tag) {
             // Ubah tag menjadi huruf besar di awal
             $tags = array_map(fn($item) => ucfirst($item), $request->tag);
-        
+
             // Pastikan setiap tag ada di database
             $tagIds = [];
             foreach ($tags as $tagName) {
@@ -641,7 +670,7 @@ class ArticleController extends Controller
 
                 $tagIds[] = $tag->id;
             }
-        
+
             // Sinkronkan tag ke dalam pivot table
             $article->articletag()->sync($tagIds);
         }
@@ -650,7 +679,7 @@ class ArticleController extends Controller
         if ($request->category) {
             // Ubah tag menjadi huruf besar di awal
             $categories = array_map(fn($item) => ucfirst($item), $request->category);
-        
+
             // Pastikan setiap tag ada di database
             $categoryIds = [];
             foreach ($categories as $categoryName) {
@@ -664,7 +693,7 @@ class ArticleController extends Controller
 
                 $categoryIds[] = $category->id;
             }
-        
+
             // Sinkronkan tag ke dalam pivot table
             $article->articlecategory()->sync($categoryIds);
         }
@@ -693,7 +722,7 @@ class ArticleController extends Controller
         if ($article->articlebanner) {
             foreach ($article->articlebanner as $item) {
                 $path = public_path('storage/images/article/banner/' . $item->image);
-            
+
                 if (file_exists($path)) {
                     unlink($path);
                 }
@@ -702,13 +731,13 @@ class ArticleController extends Controller
         if ($article->articlegallery) {
             foreach ($article->articlegallery as $item) {
                 $path = public_path('storage/images/article/gallery/' . $item->image);
-            
+
                 if (file_exists($path)) {
                     unlink($path);
                 }
             }
         }
-        
+
         $article->delete();
 
         return redirect()->back();
