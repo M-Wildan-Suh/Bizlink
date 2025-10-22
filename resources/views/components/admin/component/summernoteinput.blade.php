@@ -2,8 +2,8 @@
 
 <div class=" w-full">
     <div class=" w-full flex flex-col max-w-full gap-2 text-sm sm:text-base font-medium">
-        <label for="summernote">{{$title}}</label>
-        <textarea id="summernote" name="{{$name}}">{!! $value == '' ? '' : $value !!}</textarea>
+        <label for="summernote">{{ $title }}</label>
+        <textarea id="summernote" name="{{ $name }}">{!! $value == '' ? '' : $value !!}</textarea>
     </div>
 </div>
 <script>
@@ -12,15 +12,22 @@
             $('#summernote').summernote({
                 height: 300,
                 toolbar: [
-                    ['style', ['style']], 
-                    ['font', ['bold', 'italic', 'underline']], 
-                    ['para', ['ul', 'ol', 'paragraph']], 
-                    ['insert', ['link']], 
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link']],
                     ['view', ['fullscreen', 'codeview']]
                 ],
-                styleTags: [
-                    { title: 'Paragraph', tag: 'p', value: 'p' },
-                    { title: 'Heading', tag: 'h3', value: 'h3' },
+                styleTags: [{
+                        title: 'Paragraph',
+                        tag: 'p',
+                        value: 'p'
+                    },
+                    {
+                        title: 'Heading',
+                        tag: 'h3',
+                        value: 'h3'
+                    },
                 ]
             });
         });
@@ -33,7 +40,15 @@
     }
 
     /* Override gaya default Tailwind untuk h1 hingga h6 */
-    .note-editor strong, p, li, h1, h2, h3, h4, h5, h6 {
+    .note-editor strong,
+    .note-editor p,
+    .note-editor li,
+    .note-editor h1,
+    .note-editor h2,
+    .note-editor h3,
+    .note-editor h4,
+    .note-editor h5,
+    .note-editor h6 {
         color: inherit !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -98,7 +113,7 @@
         line-height: 0.75rem !important;
     }
 
-    .note-editable > * + * {
+    .note-editable>*+* {
         margin-top: 0 !important;
     }
 
@@ -107,15 +122,18 @@
             font-size: 1rem !important;
             line-height: 1.5rem !important;
         }
+
         .note-editor li {
             font-size: 1rem !important;
             line-height: 1.5rem !important;
         }
+
         .note-editor h3 {
             font-size: 1.25rem !important;
             line-height: 1.75rem !important;
         }
-        .note-editable > * + * {
+
+        .note-editable>*+* {
             margin-top: 0 !important;
         }
     }
@@ -133,7 +151,7 @@
         /* background-color: #f5f5f5 !important; */
         border-radius: 0.375rem !important;
     }
-    
+
     .note-toolbar {
         border-radius: 0.375rem 0.375rem 0 0 !important;
     }
