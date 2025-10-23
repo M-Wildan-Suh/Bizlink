@@ -94,7 +94,17 @@ class PageController extends Controller
             $tag = ArticleTag::where('slug', $tag)->first()->tag;
             $title = 'Tag : '.$tag;
         } elseif ($request->search) {
-            $data = ArticleShow::where('judul', 'like', '%' . $request->search . '%')->where('status', 'publish')
+            $data = ArticleShow::
+                where(function ($query) use ($request) {
+                    $query->where('judul', 'like', '%' . $request->search . '%')
+                        ->orWhereHas('articles.articleCategory', function ($q) use ($request) {
+                            $q->where('category', 'like', '%' . $request->search . '%');
+                        })
+                        ->orWhereHas('articles.articleTag', function ($q) use ($request) {
+                            $q->where('tag', 'like', '%' . $request->search . '%');
+                        });
+                })
+                ->where('status', 'publish')
                 ->whereHas('articles', function ($query) {
                     $query->whereNull('guardian_web_id');
                 })->latest()->paginate(12);
@@ -163,7 +173,7 @@ class PageController extends Controller
             $query->whereNull('guardian_web_id');
         })->get();
 
-        return view('guest.pagenotfound', compact('category'));
+        return response()->view('guest.pagenotfound', compact('category'), 404);
     }
 
     public function test() {

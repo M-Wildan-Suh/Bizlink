@@ -30,7 +30,8 @@ class ArticleApiController extends Controller
         return $web;
     }
 
-    public function index(Request $request, $code) {
+    public function index(Request $request, $code)
+    {
         $web = $this->findWebByCode($code);
 
         if ($web instanceof \Illuminate\Http\JsonResponse) {
@@ -45,7 +46,15 @@ class ArticleApiController extends Controller
             ->where('status', 'publish')
             ->with(['articles.articletag', 'articles.articlecategory', 'articles.user', 'articleshowgallery', 'phoneNumber', 'template'])
             ->when($request->search, function ($query, $search) {
-                return $query->where('judul', 'like', '%' . $search . '%');
+                $query->whereHas('articles', function ($q) use ($search) {
+                    $q->where('judul', 'like', '%' . $search . '%')
+                        ->orWhereHas('articleCategory', function ($q2) use ($search) {
+                            $q2->where('category', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('articleTag', function ($q3) use ($search) {
+                            $q3->where('tag', 'like', '%' . $search . '%');
+                        });
+                });
             })
             ->latest()
             ->paginate($perPage);
@@ -59,7 +68,7 @@ class ArticleApiController extends Controller
             $data->date = Carbon::parse($data->created_at)->locale('id')->translatedFormat('d F Y');
             return $data;
         });
-        
+
         $trend->transform(function ($data) {
             $data->date = Carbon::parse($data->created_at)->locale('id')->translatedFormat('d F Y');
             return $data;
@@ -77,7 +86,8 @@ class ArticleApiController extends Controller
         ]);
     }
 
-    public function indexUser(Request $request, $user, $code) {
+    public function indexUser(Request $request, $user, $code)
+    {
         $web = $this->findWebByCode($code);
 
         if ($web instanceof \Illuminate\Http\JsonResponse) {
@@ -103,7 +113,7 @@ class ArticleApiController extends Controller
             $data->date = Carbon::parse($data->created_at)->locale('id')->translatedFormat('d F Y');
             return $data;
         });
-        
+
         $categories = ArticleCategory::whereHas('articles', function ($query) use ($articleIds) {
             $query->whereIn('articles.id', $articleIds);
         })->get();
@@ -116,7 +126,8 @@ class ArticleApiController extends Controller
         ]);
     }
 
-    public function indexCategory($category, $code) {
+    public function indexCategory($category, $code)
+    {
         $web = $this->findWebByCode($code);
 
         if ($web instanceof \Illuminate\Http\JsonResponse) {
@@ -124,7 +135,7 @@ class ArticleApiController extends Controller
         }
 
         $category = ArticleCategory::where('slug', $category)->first();
-    
+
 
         $articleIds = $web->articles->pluck('id');
 
@@ -143,7 +154,7 @@ class ArticleApiController extends Controller
             $data->date = Carbon::parse($data->created_at)->locale('id')->translatedFormat('d F Y');
             return $data;
         });
-        
+
         $categories = ArticleCategory::whereHas('articles', function ($query) use ($articleIds) {
             $query->whereIn('articles.id', $articleIds);
         })->get();
@@ -156,7 +167,8 @@ class ArticleApiController extends Controller
         ]);
     }
 
-    public function indexTag($tag, $code) {
+    public function indexTag($tag, $code)
+    {
         $web = $this->findWebByCode($code);
 
         if ($web instanceof \Illuminate\Http\JsonResponse) {
@@ -164,7 +176,7 @@ class ArticleApiController extends Controller
         }
 
         $tag = ArticleTag::where('slug', $tag)->first();
-    
+
 
         $articleIds = $web->articles->pluck('id');
 
@@ -196,7 +208,8 @@ class ArticleApiController extends Controller
         ]);
     }
 
-    public function landingPage($slug, $code) {
+    public function landingPage($slug, $code)
+    {
         $web = $this->findWebByCode($code);
 
         if ($web instanceof \Illuminate\Http\JsonResponse) {
@@ -233,7 +246,7 @@ class ArticleApiController extends Controller
                 'message' => 'Artikel tidak ditemukan.',
             ], 404); // Bisa pakai 404 atau 200 tergantung standar kamu
         }
-        
+
         return response()->json([
             'success' => true,
             'data' => $articles,
@@ -241,7 +254,8 @@ class ArticleApiController extends Controller
         ]);
     }
 
-    public function notFound($code) {
+    public function notFound($code)
+    {
         $web = $this->findWebByCode($code);
 
         if ($web instanceof \Illuminate\Http\JsonResponse) {
@@ -260,7 +274,8 @@ class ArticleApiController extends Controller
         ]);
     }
 
-    public function sitemap($code) {
+    public function sitemap($code)
+    {
         $web = $this->findWebByCode($code);
 
         if ($web instanceof \Illuminate\Http\JsonResponse) {
@@ -271,12 +286,12 @@ class ArticleApiController extends Controller
         $perPage = 12;
 
         $pages = [];
-    
+
         // Artikel Utama
         $totalArticles = ArticleShow::where('status', 'publish')
             ->whereIn('article_id', $articleIds)
             ->count();
-            
+
         $totalPages = ceil($totalArticles / $perPage);
         for ($page = 1; $page <= $totalPages; $page++) {
             $pages[] = [
@@ -284,19 +299,19 @@ class ArticleApiController extends Controller
                 'updated_at' => now(),
             ];
         }
-    
+
         // Penulis
         foreach (User::all() as $user) {
             $articleCount = ArticleShow::where('status', 'publish')
                 ->whereIn('article_id', $user->articles()->pluck('id')->intersect($articleIds))
                 ->count();
             if ($articleCount == 0) continue;
-    
+
             $pages[] = [
                 'url' => "/penulis/{$user->slug}",
                 'updated_at' => $user->updated_at,
             ];
-    
+
             $totalPages = ceil($articleCount / $perPage);
             for ($page = 1; $page <= $totalPages; $page++) {
                 $pages[] = [
@@ -305,19 +320,19 @@ class ArticleApiController extends Controller
                 ];
             }
         }
-    
+
         // Kategori
         foreach (ArticleCategory::all() as $category) {
             $articleCount = ArticleShow::where('status', 'publish')
                 ->whereIn('article_id', $category->articles()->pluck('articles.id')->intersect($articleIds))
                 ->count();
             if ($articleCount == 0) continue;
-    
+
             $pages[] = [
                 'url' => "/kategori/{$category->slug}",
                 'updated_at' => $category->updated_at,
             ];
-    
+
             $totalPages = ceil($articleCount / $perPage);
             for ($page = 1; $page <= $totalPages; $page++) {
                 $pages[] = [
@@ -326,19 +341,19 @@ class ArticleApiController extends Controller
                 ];
             }
         }
-    
+
         // Tag
         foreach (ArticleTag::all() as $tag) {
             $articleCount = ArticleShow::where('status', 'publish')
                 ->whereIn('article_id', $tag->articles()->pluck('articles.id')->intersect($articleIds))
                 ->count();
             if ($articleCount == 0) continue;
-    
+
             $pages[] = [
                 'url' => "/tag/{$tag->slug}",
                 'updated_at' => $tag->updated_at,
             ];
-    
+
             $totalPages = ceil($articleCount / $perPage);
             for ($page = 1; $page <= $totalPages; $page++) {
                 $pages[] = [
@@ -358,7 +373,7 @@ class ArticleApiController extends Controller
                 'updated_at' => $item->updated_at,
             ];
         }
-    
+
         return response()->json([
             'pages' => $pages
         ]);

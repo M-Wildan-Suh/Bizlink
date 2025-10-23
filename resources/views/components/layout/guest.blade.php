@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
         
-        <link rel="icon" href="{{ asset('/assets/images/logo.png') }}" type="image/x-icon">
+        <link rel="icon" href="{{ asset('/assets/images/icon.png') }}" type="image/x-icon">
 
         <title>{{$title ?? ''}}</title>
 
