@@ -43,7 +43,10 @@ class PageController extends Controller
             ->take(6)->get();
             
         $data->withPath("/artikel/page");
-        return view('guest.home', compact('data', 'trend', 'category'));
+
+        $hp = PhoneNumber::first()->no_tlp;
+
+        return view('guest.home', compact('data', 'trend', 'category', 'hp'));
     }
 
     public function article(Request $request, $username = null, $category = null, $tag = null) {
@@ -133,7 +136,9 @@ class PageController extends Controller
             $query->whereNull('guardian_web_id');
         })->get();
 
-        return view('guest.article', compact('data', 'title', 'page', 'category'));
+        $hp = PhoneNumber::first()->no_tlp;
+
+        return view('guest.article', compact('data', 'title', 'page', 'category', 'hp'));
     }
 
     public function business($slug) {
@@ -165,15 +170,19 @@ class PageController extends Controller
             $query->whereNull('guardian_web_id');
         })->get();
 
-        return view('guest.business', compact('data', 'template', 'category'));
+        $hp = PhoneNumber::first()->no_tlp;
+
+        return view('guest.business', compact('data', 'template', 'category', 'hp'));
     }
 
     public function notFound() {
         $category = ArticleCategory::whereHas('articles', function ($query) {
             $query->whereNull('guardian_web_id');
         })->get();
+        
+        $hp = PhoneNumber::first()->no_tlp;
 
-        return response()->view('guest.pagenotfound', compact('category'), 404);
+        return response()->view('guest.pagenotfound', compact('category', 'hp'), 404);
     }
 
     public function test() {

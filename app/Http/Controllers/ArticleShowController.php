@@ -369,7 +369,10 @@ class ArticleShowController extends Controller
 
         $newarticle->judul = $request->judul;
         $newarticle->article = $request->article;
-        $newarticle->guardian_web_id = $request->guardian;
+        
+        if (Auth::user()->role === 'admin') {
+            $newarticle->guardian_web_id = $request->guardian;
+        }
 
         if ($request->status === "schedule") {
             $newarticle->schedule = true;

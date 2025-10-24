@@ -74,8 +74,10 @@
                                     </g>
                                 </svg>
                             </div>
-                            <a href="https://wa.me/+6285173315798" target="__blank">
-                                <p class=" text-sm hover:underline">+62 851-7331-5798</p>
+                            <a href="https://wa.me/{{ $hp }}" target="__blank">
+                                <p class=" hover:underline">
+                                    {{ '+62 ' . substr($hp, 3, 3) . '-' . substr($hp, 6, 4) . '-' . substr($hp, 10) }}
+                                </p>
                             </a>
                         </div>
                         <div class=" flex items-center gap-2">
@@ -87,8 +89,10 @@
                                         fill="currentColor" class="fill-000000"></path>
                                 </svg>
                             </div>
-                            <a href="tel:+6285173315798" target="__blank">
-                                <p class=" text-sm hover:underline">+62-851-7331-5798</p>
+                            <a href="tel:{{ $hp }}" target="__blank">
+                                <p class=" hover:underline">
+                                    {{ '+62 ' . substr($hp, 3, 3) . '-' . substr($hp, 6, 4) . '-' . substr($hp, 10) }}
+                                </p>
                             </a>
                         </div>
                         <div class=" flex items-center gap-2">

@@ -631,7 +631,10 @@ class ArticleController extends Controller
 
         $article->judul = $request->judul;
         $article->article = $request->article;
-        $article->guardian_web_id = $request->guardian;
+
+        if (Auth::user()->role === 'admin') {
+            $article->guardian_web_id = $request->guardian;
+        }
 
 
         if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $request->link, $matches)) {

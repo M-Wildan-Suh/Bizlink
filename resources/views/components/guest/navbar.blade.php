@@ -1,6 +1,6 @@
 {{-- Navigation --}}
 <div class="" x-data="{open : false}">
-    <div class=" fixed top-0 left-0 grid grid-col-3 w-full bg-white px-4 md:px-8 py-4 z-50 shadow-md shadow-black/10">
+    <div class=" fixed top-0 left-0 w-full bg-white px-4 md:px-8 py-4 z-50 shadow-md shadow-black/10">
         <div class=" w-full max-w-[1080px] mx-auto flex items-center gap-10 justify-between">
             <a href="{{route('home')}}">
                 <div class=" h-10 flex items-center overflow-hidden">
@@ -8,7 +8,7 @@
                     <img src="{{asset('assets/images/logo.png')}}" class=" max-h-full" alt="">
                 </div>
             </a>
-            <div class=" hidden md:block flex-grow">
+            <div class=" hidden md:block w-full max-w-lg">
                 <form action="{{route('allarticle')}}" method="get">
                     <div class=" flex items-center justify-between h-10 bg-white">
                         <input type="text" name="search" value="{{ request('search') }}" class=" min-w-0 sm:flex-grow h-10 text-sm px-4 sm:px-6 border-r-0 rounded-l-full focus:border-byolink-1 focus:ring-0" placeholder="Cari Artikel....">

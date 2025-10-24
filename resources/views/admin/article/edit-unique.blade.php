@@ -36,29 +36,31 @@
     </div>
     <x-admin.component.nochoseinput title="Phone Number (optional)" :phone="$phonenumber" :value="old('no_tlp', $articleShow->phoneNumber->no_tlp ?? null)" name="no_tlp" />
 
-    <div class="flex flex-col gap-2">
-        <label class="font-medium text-sm sm:text-base">Pilih Web (optional)</label>
-        <select class="guardianweb" name="guardian" multiple="multiple">
-            @foreach($guardian as $item)
-                <option value="{{ $item->id }}" {{ old('guardian', $articleShow->articles->guardian_web_id) === $item->id ? 'selected' : '' }}>{{ $item->url }}</option>
-            @endforeach
-        </select>
-    </div>
-    <script>
-        window.addEventListener('load', function select2() {
-            var $j = jQuery.noConflict();
-            $j(document).ready(function() {
-                $j('.guardianweb').select2({
-                    maximumSelectionLength: 1,
-                    language: {
-                        maximumSelected: function (args) {
-                            return "Hanya bisa memilih satu saja";
+    @if (Auth::user()->role === 'admin')    
+        <div class="flex flex-col gap-2">
+            <label class="font-medium text-sm sm:text-base">Pilih Web (optional)</label>
+            <select class="guardianweb" name="guardian" multiple="multiple">
+                @foreach($guardian as $item)
+                    <option value="{{ $item->id }}" {{ old('guardian', $articleShow->articles->guardian_web_id) === $item->id ? 'selected' : '' }}>{{ $item->url }}</option>
+                @endforeach
+            </select>
+        </div>
+        <script>
+            window.addEventListener('load', function select2() {
+                var $j = jQuery.noConflict();
+                $j(document).ready(function() {
+                    $j('.guardianweb').select2({
+                        maximumSelectionLength: 1,
+                        language: {
+                            maximumSelected: function (args) {
+                                return "Hanya bisa memilih satu saja";
+                            }
                         }
-                    }
+                    });
                 });
             });
-        });
-    </script>
+        </script>
+    @endif
         
     <div class=" w-full relative pt-10 sm:pt-11">
         <div class=" w-full">

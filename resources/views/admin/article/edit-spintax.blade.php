@@ -6,31 +6,33 @@
     <x-admin.component.taginput title="Tag" :tag="$tag" :value="old('tag', $article->articletag)" name="tag[]" />
     <x-admin.component.summernoteinput title="Artikel" :value="old('article', $article->article)" name="article" />
 
-    <div class="flex flex-col gap-2">
-        <label class="font-medium text-sm sm:text-base">Pilih Web (optional)</label>
-        <select class="guardianweb" name="guardian" multiple="multiple">
-            @foreach ($guardian as $item)
-                <option value="{{ $item->id }}"
-                    {{ (old('guardian') ?? ($article->guardian_web_id ?? null)) == $item->id ? 'selected' : '' }}>
-                    {{ $item->url }}</option>
-            @endforeach
-        </select>
-    </div>
-    <script>
-        window.addEventListener('load', function select2() {
-            var $j = jQuery.noConflict();
-            $j(document).ready(function() {
-                $j('.guardianweb').select2({
-                    maximumSelectionLength: 1,
-                    language: {
-                        maximumSelected: function(args) {
-                            return "Hanya bisa memilih satu saja";
+    @if (Auth::user()->role === 'admin')  
+        <div class="flex flex-col gap-2">
+            <label class="font-medium text-sm sm:text-base">Pilih Web (optional)</label>
+            <select class="guardianweb" name="guardian" multiple="multiple">
+                @foreach ($guardian as $item)
+                    <option value="{{ $item->id }}"
+                        {{ (old('guardian') ?? ($article->guardian_web_id ?? null)) == $item->id ? 'selected' : '' }}>
+                        {{ $item->url }}</option>
+                @endforeach
+            </select>
+        </div>
+        <script>
+            window.addEventListener('load', function select2() {
+                var $j = jQuery.noConflict();
+                $j(document).ready(function() {
+                    $j('.guardianweb').select2({
+                        maximumSelectionLength: 1,
+                        language: {
+                            maximumSelected: function(args) {
+                                return "Hanya bisa memilih satu saja";
+                            }
                         }
-                    }
+                    });
                 });
             });
-        });
-    </script>
+        </script>
+    @endif
 
     <x-slot:additional>
         <div x-data="bannerComponent({{ $article->articlebanner }}, {{ $article->id }})" class="flex flex-col gap-2">
