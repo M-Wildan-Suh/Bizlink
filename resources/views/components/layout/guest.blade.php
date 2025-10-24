@@ -32,8 +32,8 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
 
         <!-- Styles -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        {{-- <link href="{{ asset('build/assets/app.css') }}" rel="stylesheet" /> --}}
+        {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+        <link href="{{ asset('build/assets/app.css') }}" rel="stylesheet" />
     </head>
     <body class="font-sans antialiased"
         x-data="{ loading: true }" 
@@ -88,7 +88,7 @@
             {{$slot}}
         </div>
     </body>
-    {{-- <script src="{{ asset('build/assets/app.js') }}"></script> --}}
+    <script src="{{ asset('build/assets/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
