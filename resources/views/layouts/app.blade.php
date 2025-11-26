@@ -82,9 +82,9 @@
             @include('components.admin.navbar')
         </div>
     </body>
-    <script src="{{ asset('build/assets/app.js') }}"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <script src="{{ asset('build/assets/app.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
     
