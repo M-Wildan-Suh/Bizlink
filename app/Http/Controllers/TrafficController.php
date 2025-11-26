@@ -96,7 +96,7 @@ class TrafficController extends Controller
             return $category;
         });
 
-        $articles = ArticleShow::where('id', $traffic['articleIds'])->get();
+        $articles = ArticleShow::whereIn('id', $traffic['articleIds'])->get();
 
         $articles = $articles->map(function ($article) use ($start, $end) {
             $article->access = Traffic::where('article_show_id', $article->id)
