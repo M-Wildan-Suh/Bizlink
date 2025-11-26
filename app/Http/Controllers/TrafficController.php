@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Models\ArticleShow;
 use App\Models\GuardianWeb;
@@ -46,7 +47,7 @@ class TrafficController extends Controller
             ->with('articles.articleshow')
             ->get();
 
-        $guardian =  $guardians->map(function ($guardian) use ($traffic, $start, $end) {
+        $guardians =  $guardians->map(function ($guardian) use ($traffic, $start, $end) {
 
             // Ambil semua article_show_id milik guardian
             $ids = $guardian->articles
@@ -67,6 +68,30 @@ class TrafficController extends Controller
 
             return $guardian;
         });
+
+        $noGuardianArticleShowIds = Article::whereNull('guardian_web_id')
+            ->with('articleshow')
+            ->get()
+            ->flatMap(fn($a) => $a->articleshow->pluck('id'))
+            ->filter(fn($id) => in_array($id, $traffic['articleIds'])) // ikut mode
+            ->values()
+            ->toArray();
+
+        $noGuardianAccessQuery = Traffic::whereIn('article_show_id', $noGuardianArticleShowIds);
+
+        if ($start && $end) {
+            $noGuardianAccessQuery->whereBetween('created_at', [$start, $end]);
+        }
+
+        $noGuardianAccess = $noGuardianAccessQuery->sum('access');
+
+        if ($noGuardianAccess > 0) {
+            $guardians->push((object)[
+                'id' => null,
+                'url' => 'bizlink.sites.id',
+                'access' => $noGuardianAccess,
+            ]);
+        }
 
         $categories = ArticleCategory::whereHas('articles.articleshow', function ($q) use ($traffic) {
             $q->whereIn('id', $traffic['articleIds']);
