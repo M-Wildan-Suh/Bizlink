@@ -19,7 +19,7 @@
 
                 @include('components.admin.template.background')
                 <div class="relative w-full p-4 sm:p-6 bg-white">
-                    <x-admin.component.textinput title="Name" placeholder="Masukkan Nama Template" :value="old('name', $template->name)" name="name" />
+                    <x-admin.component.textinput title="Name" placeholder="Input Template Name..." :value="old('name', $template->name)" name="name" />
                 </div>
                 <div class=" space-y-4 sm:space-y-6 relative p-4 sm:p-6">
                     <div class=" w-full">

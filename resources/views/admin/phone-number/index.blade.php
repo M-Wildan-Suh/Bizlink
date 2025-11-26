@@ -6,7 +6,7 @@
             <div class="w-full flex flex-col sm:flex-row gap-2 justify-between items-center">
                 <a href="{{ route('phone-number.create') }}"
                     class=" w-full text-sm sm:text-base sm:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
-                    Tambah No. Telephone
+                    Add No. Telephone
                 </a>
 
                 <!-- Search -->
@@ -23,7 +23,7 @@
                         <tr class="h-10 bg-byolink-1 text-white divide-x-2 divide-white">
                             <th class=" px-1 sm:px-2 py-1 w-10">No</th>
                             <th class=" px-1 sm:px-2 py-1">No. Telephone</th>
-                            <th class=" px-1 sm:px-2 py-1 w-20">Opsi</th>
+                            <th class=" px-1 sm:px-2 py-1 w-20">Option</th>
                         </tr>
                     </thead>
                     <tbody>

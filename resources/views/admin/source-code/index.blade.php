@@ -5,7 +5,7 @@
             <div x-data="{ showModal: false }" class="w-full flex flex-col sm:flex-row gap-2 justify-between items-center">
                 <button @click="showModal = true"
                     class=" w-full text-sm sm:text-base sm:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
-                    Tambah Short Code
+                    Input Short Code
                 </button>
                 <!-- Create Modal -->
                 <div x-show="showModal"
@@ -29,11 +29,10 @@
                                 @csrf
                                 <div class=" w-full overflow-auto max-h-full px-6 space-y-4">
                                     <div class=" space-y-4">
-                                        <x-admin.component.textinput title="Title" placeholder="Masukkan Title"
+                                        <x-admin.component.textinput title="Title" placeholder="Input Title"
                                             :value="''" name="title" />
                                         <div class="flex flex-col gap-2">
-                                            <label class="font-medium text-sm sm:text-base">Konten (Pisahkan menggunakan
-                                                "," atau "enter")</label>
+                                            <label class="font-medium text-sm sm:text-base">Content (Separate using "," or "enter")</label>
                                             <div class=" w-full flex gap-1">
                                                 <select class="js-example-basic-single" name="content[]"
                                                     multiple="multiple"></select>
@@ -83,8 +82,8 @@
                     <thead>
                         <tr class="h-10 bg-byolink-1 text-white divide-x-2 divide-white">
                             <th class=" px-1 sm:px-2 py-1 w-10">No</th>
-                            <th class=" px-1 sm:px-2 py-1">Name</th>
-                            <th class=" px-1 sm:px-2 py-1 w-20">Opsi</th>
+                            <th class=" px-1 sm:px-2 py-1">Title</th>
+                            <th class=" px-1 sm:px-2 py-1 w-20">Option</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -9,7 +9,7 @@
                     </a>
                     <a href="{{ route('article-show.create') }}"
                         class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
-                        +Artikel Unik
+                        +Artikel Unique
                     </a>
                     <a href="{{ route('source-code.index') }}"
                         class=" col-span-2 sm:col-span-1 text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
@@ -21,7 +21,7 @@
                 <!-- Search -->
                 <div class=" w-full lg:w-auto flex flex-row font-semibold duration-300">
                     <form action="{{ url()->current() }}" class=" w-full">
-                        <input type="text" placeholder="Cari Judul..." name="search"
+                        <input type="text" placeholder="Search Title..." name="search"
                             value="{{ urlencode(request('search')) ?? '' }}"
                             class=" w-full text-sm sm:text-base lg:w-auto py-2 px-3 border border-byolink-1 rounded-md overflow-hidden focus-within:border-byolink-3 font-normal">
                     </form>
@@ -29,15 +29,15 @@
             </div>
             <div class=" w-full grid grid-cols-3 gap-2 sm:gap-4">
                 <a href="{{ route('article.index') }}"
-                    class="{{ request()->routeIs(['article.index', 'article.filter']) ? 'bg-byolink-1 text-white' : ' text-black rounded-md hover:text-white hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
-                    Semua
+                    class="{{ request()->routeIs(['article.index', 'article.filter']) ? 'bg-byolink-1 text-white' : ' text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    All
                 </a>
                 <a href="{{ route('article.spintax') }}"
-                    class="{{ request()->routeIs(['article.spintax', 'article.spintax.filter']) ? 'bg-byolink-1 text-white' : ' text-black rounded-md hover:text-white hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    class="{{ request()->routeIs(['article.spintax', 'article.spintax.filter']) ? 'bg-byolink-1 text-white' : ' text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                     Spintax
                 </a>
                 <a href="{{ route('article.unique') }}"
-                    class="{{ request()->routeIs(['article.unique', 'article.unique.filter']) ? 'bg-byolink-1 text-white' : ' text-black rounded-md hover:text-white hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    class="{{ request()->routeIs(['article.unique', 'article.unique.filter']) ? 'bg-byolink-1 text-white' : ' text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                     Unique
                 </a>
             </div>
@@ -92,11 +92,11 @@
                 <thead>
                     <tr class="h-10 bg-byolink-1 text-white divide-x-2 divide-white">
                         <th class=" w-10 px-2 py-1 rounded-tl-md">No</th>
-                        <th class=" px-1 sm:px-2 py-1 relative">Judul</th>
-                        <th class=" px-1 sm:px-2 py-1 relative hidden md:table-cell">Kategori</th>
+                        <th class=" px-1 sm:px-2 py-1 relative">Title</th>
+                        <th class=" px-1 sm:px-2 py-1 relative hidden md:table-cell">Category</th>
                         <th class=" px-1 sm:px-2 py-1 relative hidden md:table-cell">Author</th>
                         <th class=" px-1 sm:px-2 py-1 relative hidden md:table-cell">Guardian</th>
-                        <th class=" px-1 sm:px-2 py-1 w-[90px] sm:w-[100px] rounded-tr-md">Opsi</th>
+                        <th class=" px-1 sm:px-2 py-1 w-[90px] sm:w-[100px] rounded-tr-md">Option</th>
                     </tr>
                 </thead>
                 <tbody id="guardian-container" x-data="tableToggle()">

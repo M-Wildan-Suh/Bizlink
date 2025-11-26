@@ -1,6 +1,6 @@
 @props(['title', 'route'])
 <div x-show="deletemodal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center px-4 z-50">
     <div class="w-full max-w-[720px] bg-white pb-6 rounded-md flex flex-col gap-4 relative overflow-hidden border-2 border-byolink-1">
         <button @click="deletemodal = false"
             class=" absolute top-6 right-6 w-6 h-6 text-white hover:text-red-500 duration-300">
@@ -11,10 +11,10 @@
                     fill="currentColor" class="fill-000000"></path>
             </svg>
         </button>
-        <div class=" pt-6 pb-3 bg-byolink-1 text-white">
-            <h2 class=" px-6 text-2xl font-bold">Apa anda yakin menghapus data ini?</h2>
+        <div class=" pt-6 pb-3 bg-byolink-1 text-white pr-7">
+            <h2 class=" px-6 text-2xl font-bold">Are you sure you want to delete this data?</h2>
         </div>
-        <p class="px-6 text-base">Anda akan menghapus data : {{$title}}</p>
+        <p class="px-6 text-base">You are about to delete the data : {{$title}}</p>
         <div class="flex justify-end space-x-4 px-6">
             {{-- <button @click="confirmDeleteModal = false"
                 class="px-4 py-2 bg-neutral-600 duration-300 hover:bg-byolink-1 text-white rounded">Cancel</button> --}}
@@ -23,7 +23,7 @@
                 @csrf
                 @method('DELETE')
                 <button type="submit"
-                    class="px-4 py-2 bg-red-500 duration-300 hover:bg-red-900 text-white rounded">Hapus</button>
+                    class="px-4 py-2 bg-red-500 duration-300 hover:bg-red-900 text-white rounded">Delete</button>
             </form>
         </div>
     </div>

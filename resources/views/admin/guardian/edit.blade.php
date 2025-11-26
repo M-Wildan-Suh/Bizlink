@@ -4,10 +4,10 @@
             @csrf
             @method('PUT')
             <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20 flex flex-col gap-6">
-                <x-admin.component.linkinput title="Url Web Guardian" placeholder="Masukkan link..." :value="old('url', $guardianWeb->url)" name="url" link="Url" />
+                <x-admin.component.linkinput title="Guardian Web Url" placeholder="Input link..." :value="old('url', $guardianWeb->url)" name="url" link="Url" />
                 <div class=" w-full space-y-6">
                     <div class="flex flex-col gap-2">
-                        <label class="font-medium text-sm sm:text-base">Pilih Artikel</label>
+                        <label class="font-medium text-sm sm:text-base">Chose Article</label>
                         @php
                             $selectedArticles = old('article', $guardianWeb->articles->pluck('id')->toArray());
                         @endphp

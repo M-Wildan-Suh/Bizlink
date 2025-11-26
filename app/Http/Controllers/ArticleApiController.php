@@ -8,6 +8,7 @@ use App\Models\ArticleShow;
 use App\Models\ArticleTag;
 use App\Models\GuardianWeb;
 use App\Models\PhoneNumber;
+use App\Models\Traffic;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -224,9 +225,28 @@ class ArticleApiController extends Controller
             ->with(['articles.articletag', 'articles.articlecategory', 'articles.user', 'articleshowgallery', 'phoneNumber', 'template'])
             ->first();
 
-        $articles->view = $articles->view + 1;
+        $articles->increment('view');
 
-        $articles->save();
+        $nowHour = Carbon::now()->format('Y-m-d H:00:00');
+
+        // Cari traffic dalam jam yang sama
+        $traffic = Traffic::where('article_show_id', $articles->id)
+            ->whereBetween('created_at', [
+                Carbon::parse($nowHour),
+                Carbon::parse($nowHour)->addHour()
+            ])
+            ->first();
+
+        if ($traffic) {
+            // Sudah ada record di jam ini → tambah access
+            $traffic->increment('access');
+        } else {
+            // Belum ada record → buat baru
+            Traffic::create([
+                'article_show_id' => $articles->id,
+                'access' => 1,
+            ]);
+        }
 
         if ($articles->phoneNumber) {
             $articles->no_tlp = $articles->phoneNumber->no_tlp;

@@ -6,7 +6,7 @@
                     <a href="{{ route('guardian.create') }}">
                         <button
                             class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
-                            Tambah Web
+                            Add Domain
                         </button>
                     </a>
                     <a href="{{ route('guardian.export') }}" target="__blank">
@@ -21,7 +21,7 @@
                 <!-- Search -->
                 <div class=" w-full md:w-auto flex flex-row font-semibold duration-300">
                     <form action="{{route('guardian.index')}}" class=" w-full">
-                        <input type="text" placeholder="Cari Url..." name="search" value="{{urlencode(request('search')) ?? ''}}"
+                        <input type="text" placeholder="Search Url..." name="search" value="{{urlencode(request('search')) ?? ''}}"
                             class=" w-full text-sm sm:text-base md:w-auto py-2 px-3 border border-byolink-1 rounded-md overflow-hidden focus-within:border-byolink-3 font-normal">
                     </form>
                 </div>
@@ -42,7 +42,7 @@
                                 U<span class=" hidden sm:block">nique</span>
                             </div>
                         </th>
-                        <th class=" px-1 sm:px-2 py-1 w-[90px] sm:w-[100px] rounded-tr-md">Opsi</th>
+                        <th class=" px-1 sm:px-2 py-1 w-[90px] sm:w-[100px] rounded-tr-md">Option</th>
                     </tr>
                 </thead>
                 <tbody id="guardian-container" x-data="tableToggle()">

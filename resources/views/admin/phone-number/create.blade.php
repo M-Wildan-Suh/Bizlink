@@ -3,10 +3,10 @@
         <form action="{{route('phone-number.store')}}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20 flex flex-col gap-6">
-                <x-admin.component.textinput title="No. Telephone" placeholder="Masukkan no. telephone" :value="old('no_tlp')" name="no_tlp" />
+                <x-admin.component.textinput title="No. Telephone" placeholder="Input no. telephone" :value="old('no_tlp')" name="no_tlp" />
                 <div class=" w-full">
                     <div class="flex flex-col gap-2">
-                        <label class="font-medium text-sm sm:text-base">Pilih Kategori</label>
+                        <label class="font-medium text-sm sm:text-base">Chose Category</label>
                         <select class="js-example-basic-single" name="category[]" multiple="multiple">
                             @foreach($category as $item)
                                 <option value="{{ $item->id }}" {{ in_array($item->id, old('category', [])) ? 'selected' : '' }}>{{ $item->category }}</option>

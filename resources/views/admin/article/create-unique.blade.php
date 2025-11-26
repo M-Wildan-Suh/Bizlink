@@ -1,8 +1,8 @@
 <x-admin.article.form head="Create Article Unique" title="Admin - Create Article Unique" :form="route('article-show.store')" >
-    <x-admin.component.textinput title="Judul" placeholder="Masukkan Judul" :value="old('judul')" name="judul" />
-    <x-admin.component.categoryinput title="Kategori" :tag="$category" :value="old('category')" name="category[]" />
+    <x-admin.component.textinput title="Title" placeholder="Input Title" :value="old('judul')" name="judul" />
+    <x-admin.component.categoryinput title="Category" :tag="$category" :value="old('category')" name="category[]" />
     <x-admin.component.taginput title="Tag" :tag="$tag" :value="old('tag')" name="tag[]" />
-    <x-admin.component.summernoteinput title="Artikel" :value="old('article')" name="article" />
+    <x-admin.component.summernoteinput title="Article" :value="old('article')" name="article" />
     <div class=" grid grid-cols-2 gap-4">
         <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
             <label>Telephone</label>
@@ -35,7 +35,7 @@
     <x-admin.component.nochoseinput title="Phone Number (optional)" :phone="$phonenumber" :value="old('no_tlp')" name="no_tlp" />
     
     <div class="flex flex-col gap-2">
-        <label class="font-medium text-sm sm:text-base">Pilih Web (optional)</label>
+        <label class="font-medium text-sm sm:text-base">Choose Guardian Website (optional)</label>
         <select class="guardianweb" name="guardian" multiple="multiple">
             @foreach($guardian as $item)
                 <option value="{{ $item->id }}" {{ old('guardian') === $item->id ? 'selected' : '' }}>{{ $item->url }}</option>
@@ -63,7 +63,7 @@
             <input type="radio" name="status" value="publish" id="publish" class="hidden peer" checked>
             <label for="publish" class=" absolute w-[calc(33%-8px)] cursor-pointer left-0 top-0 flex justify-center p-2 text-sm sm:text-base text-center font-medium rounded-md duration-300 peer-checked:bg-byolink-1 peer-checked:text-white">Publish</label>
             <div class="peer-checked:block hidden mt-4">
-                <p class=" text-sm sm:text-base text-neutral-600">*Artikel akan langsung diterbitkan dan ditampilkan</p>
+                <p class=" text-sm sm:text-base text-neutral-600">*The article will be published and displayed immediately.</p>
             </div>
         </div>
 
@@ -90,13 +90,13 @@
                 <label>Banner</label>
                 <div class="w-full h-52 sm:h-60 flex items-center justify-center">
                     <div class=" aspect-[3/2] max-h-full max-w-full rounded-md overflow-hidden shadow-md shadow-black/20 ">
-                        <x-admin.component.imageinput title="Nama/Tipe" placeholder="Masukkan nama/tipe web..." :value="''" name="image" />
+                        <x-admin.component.imageinput title="Nama/Tipe" :value="''" name="image" />
                     </div>
                 </div>
             </div>
         </div>
         <div x-data="imageGallery()" class="flex flex-col gap-2">
-            <label class=" text-sm sm:text-base font-semibold" for="image_gallery">Galeri (Max 6) (opsional)</label>
+            <label class=" text-sm sm:text-base font-semibold" for="image_gallery">Gallery (Max 6) (Optional)</label>
             <input type="file" class="hidden" id="image_gallery" name="image_gallery[]" multiple @change="previewImages($event)" accept="image/*">
           
             <!-- Pratinjau Gambar -->

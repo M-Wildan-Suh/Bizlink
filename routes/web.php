@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SourceCodeController;
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\TrafficController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -101,6 +102,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('/admin/article-show-gallery', ArticleShowGalleryController::class);
 
     Route::resource('/admin/article-generated', ArticleGeneratedController::class);
+
+    Route::resource('/admin/traffic', TrafficController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

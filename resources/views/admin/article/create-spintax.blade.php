@@ -1,11 +1,11 @@
 <x-admin.article.form head="Create Article Spintax" title="Admin - Create Article Spintax" :form="route('article.store')" >
-    <x-admin.component.textinput title="Judul" placeholder="Masukkan Judul" :value="old('judul')" name="judul" />
-    <x-admin.component.categoryinput title="Kategori" :tag="$category" :value="old('category')" name="category[]" />
+    <x-admin.component.textinput title="Title" placeholder="Input Title" :value="old('judul')" name="judul" />
+    <x-admin.component.categoryinput title="Category" :tag="$category" :value="old('category')" name="category[]" />
     <x-admin.component.taginput title="Tag" :tag="$tag" :value="old('tag')" name="tag[]" />
-    <x-admin.component.summernoteinput title="Artikel" :value="old('article')" name="article" />
+    <x-admin.component.summernoteinput title="Article" :value="old('article')" name="article" />
 
     <div class="flex flex-col gap-2">
-        <label class="font-medium text-sm sm:text-base">Pilih Web (optional)</label>
+        <label class="font-medium text-sm sm:text-base">Choose Guardian Website (optional)</label>
         <select class="guardianweb" name="guardian" multiple="multiple">
             @foreach($guardian as $item)
                 <option value="{{ $item->id }}" {{ old('guardian') === $item->id ? 'selected' : '' }}>{{ $item->url }}</option>
@@ -30,7 +30,7 @@
     
     <x-slot:additional>
         <div x-data="imageBanner()" class="flex flex-col gap-2">
-            <label class=" text-sm sm:text-base font-semibold" for="image_banner">Galeri (Max 12) (opsional)</label>
+            <label class=" text-sm sm:text-base font-semibold" for="image_banner">Banner (Max 12) (Optional)</label>
             <input type="file" class="hidden" id="image_banner" name="image_banner[]" multiple @change="previewImages($event)" accept="image/*">
           
             <!-- Pratinjau Gambar -->
@@ -56,7 +56,7 @@
             </div>
         </div>
         <div x-data="imageGallery()" class="flex flex-col gap-2">
-            <label class=" text-sm sm:text-base font-semibold" for="image_gallery">Galeri (Max 12) (opsional)</label>
+            <label class=" text-sm sm:text-base font-semibold" for="image_gallery">Gallery (Max 12) (Optional)</label>
             <input type="file" class="hidden" id="image_gallery" name="image_gallery[]" multiple @change="previewImages($event)" accept="image/*">
           
             <!-- Pratinjau Gambar -->
@@ -158,11 +158,11 @@
                 }
             }
         </script>
-        <x-admin.component.linkinput title="Video (Link Youtube/Tiktok)" placeholder="Masukkan link..." :value="old('link')" name="link" link="Url" />
+        <x-admin.component.linkinput title="Video (Link Youtube/Tiktok)" placeholder="Input link..." :value="old('link')" name="link" link="Url" />
     </x-slot:additional>
     <x-slot:template>
         <div class=" space-y-2">
-            <label for="template" class=" text-sm sm:text-base font-semibold">Template (min 1)</label>
+            <label for="template" class=" text-sm sm:text-base font-semibold">Template (Min 1)</label>
             <div class=" w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 @foreach ($template as $item)
                     <label class="w-full rounded-md bg-white aspect-[2/3] overflow-hidden relative">

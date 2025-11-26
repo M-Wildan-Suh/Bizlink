@@ -4,11 +4,11 @@
             @csrf
             @method('PUT')
             <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20 flex flex-col gap-6">
-                <x-admin.component.textinput title="No. Telephone" placeholder="Masukkan no. telephone" :value="old('no_tlp', $phoneNumber->no_tlp)" name="no_tlp" />
+                <x-admin.component.textinput title="No. Telephone" placeholder="Input no. telephone" :value="old('no_tlp', $phoneNumber->no_tlp)" name="no_tlp" />
                 @if ($phoneNumber->type != 'main')
                     <div class=" w-full">
                         <div class="flex flex-col gap-2">
-                            <label class="font-medium text-sm sm:text-base">Pilih Kategori</label>
+                            <label class="font-medium text-sm sm:text-base">Chose Category</label>
                             @php
                                 $selectedTags = old('category', $phoneNumber->articlecategory->pluck('id')->toArray());
                             @endphp

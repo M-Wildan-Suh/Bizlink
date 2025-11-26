@@ -10,10 +10,10 @@
                 </div>
                 <div class=" flex gap-4">
                     @if ($spintax)
-                        <a href="{{$spintax}}" class=" flex gap-1 text-sm sm:text-base text-byolink-1 hover:text-byolink-3 duration-300" target="__blank">List <span class=" hidden sm:block">Artikel</span></a>
+                        <a href="{{$spintax}}" class=" flex gap-1 text-sm sm:text-base text-byolink-1 hover:text-byolink-3 duration-300" target="__blank">List <span class=" hidden sm:block">Article</span></a>
                     @endif
                     @if ($link)
-                        <a href="{{$link}}" class=" flex gap-1 text-sm sm:text-base text-byolink-1 hover:text-byolink-3 duration-300" target="__blank">Lihat <span class=" hidden sm:block">Artikel</span></a>
+                        <a href="{{$link}}" class=" flex gap-1 text-sm sm:text-base text-byolink-1 hover:text-byolink-3 duration-300" target="__blank">Open <span class=" hidden sm:block">Article</span></a>
                     @endif
                 </div>
             </div>
