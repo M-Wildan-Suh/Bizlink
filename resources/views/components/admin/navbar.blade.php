@@ -5,7 +5,7 @@
             <div class="aspect-square h-full">
                 <img src="{{ asset('assets/images/icon.png') }}" alt="">
             </div>
-            <p class="font-bold text-2xl duration-300 pb-1" :class="open ? 'opacity-0 lg:opacity-100' : 'opacity-0'">
+            <p class="font-bold text-4xl duration-300" :class="open ? 'opacity-0 lg:opacity-100' : 'opacity-0'">
                 izlink
             </p>
         </div>
