@@ -131,6 +131,19 @@ class TrafficController extends Controller
             return $article;
         });
 
+        $guardians = $guardians
+            ->sortByDesc('access')
+            ->values();
+
+        $categories = $categories
+            ->sortByDesc('access')
+            ->values();
+
+        $articles = $articles
+            ->sortByDesc('access')
+            ->values();
+
+
         $totalaccess = Traffic::whereBetween('created_at', [$start, $end])
             ->sum('access');
 
