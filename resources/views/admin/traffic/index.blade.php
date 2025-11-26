@@ -3,7 +3,7 @@
         <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20">
             <div class="space-y-4 sm:space-y-6">
                 <div class=" w-full flex sm:items-center flex-col sm:flex-row justify-between gap-4">
-                    <div class=" font-semibold px-4 py-1.5 rounded-md bg-byolink-1 text-white capitalize">Access This {{$mode}} : 2</div>
+                    <div class=" font-semibold px-4 py-1.5 rounded-md bg-byolink-1 text-white capitalize">Access This {{$mode}} : {{$totalaccess}}</div>
                     <div class=" w-auto grid grid-cols-3 gap-3 text-sm">
                         <a href="{{ route('traffic.index', ['mode' => 'day']) }}"
                             class="{{ $mode == 'day' ? 'bg-byolink-1 text-white' : ' text-black hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center px-2 py-1.5 font-semibold rounded-md duration-300">

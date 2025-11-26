@@ -106,8 +106,10 @@ class TrafficController extends Controller
             return $article;
         });
 
+        $totalaccess = Traffic::whereBetween('created_at', [$start, $end])
+            ->sum('access');
 
-        return view('admin.traffic.index', compact('traffic', 'mode', 'guardians', 'articles', 'categories'));
+        return view('admin.traffic.index', compact('traffic', 'mode', 'guardians', 'articles', 'categories', 'totalaccess'));
     }
 
     private function trafficDay()
