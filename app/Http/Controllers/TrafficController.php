@@ -45,7 +45,7 @@ class TrafficController extends Controller
             $q->whereIn('id', $traffic['articleIds']);
         })
             ->with('articles.articleshow')
-            ->get();
+            ->simplePaginate(20);
 
         $guardians =  $guardians->map(function ($guardian) use ($traffic, $start, $end) {
 
@@ -97,7 +97,7 @@ class TrafficController extends Controller
             $q->whereIn('id', $traffic['articleIds']);
         })
             ->with('articles.articleshow')
-            ->get();
+            ->simplePaginate(20);
 
         $categories = $categories->map(function ($category) use ($traffic, $start, $end) {
 
@@ -121,7 +121,7 @@ class TrafficController extends Controller
             return $category;
         });
 
-        $articles = ArticleShow::whereIn('id', $traffic['articleIds'])->get();
+        $articles = ArticleShow::whereIn('id', $traffic['articleIds'])->simplePaginate(20);
 
         $articles = $articles->map(function ($article) use ($start, $end) {
             $article->access = Traffic::where('article_show_id', $article->id)
