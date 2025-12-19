@@ -5,15 +5,15 @@
                 <div class=" w-full flex sm:items-center flex-col sm:flex-row justify-between gap-4">
                     <div class=" font-semibold px-4 py-1.5 rounded-md bg-byolink-1 text-white capitalize">Access This {{$mode}} : {{$totalaccess}}</div>
                     <div class=" w-auto grid grid-cols-3 gap-3 text-sm">
-                        <a href="{{ route('traffic.index', ['mode' => 'day']) }}"
+                        <a href="{{ route('traffic.index', ['mode' => 'day', 'list' => $list]) }}"
                             class="{{ $mode == 'day' ? 'bg-byolink-1 text-white' : ' text-black hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center px-2 py-1.5 font-semibold rounded-md duration-300">
                             Day
                         </a>
-                        <a href="{{ route('traffic.index', ['mode' => 'week']) }}"
+                        <a href="{{ route('traffic.index', ['mode' => 'week', 'list' => $list]) }}"
                             class="{{ $mode == 'week' ? 'bg-byolink-1 text-white' : ' text-black hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center px-2 py-1.5 font-semibold rounded-md duration-300">
                             Week
                         </a>
-                        <a href="{{ route('traffic.index', ['mode' => 'month']) }}"
+                        <a href="{{ route('traffic.index', ['mode' => 'month', 'list' => $list]) }}"
                             class="{{ $mode == 'month' ? 'bg-byolink-1 text-white' : ' text-black hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center px-2 py-1.5 font-semibold rounded-md duration-300">
                             Month
                         </a>
@@ -119,59 +119,46 @@
         <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20">
             <div x-data="{ tab: 'guardian' }" class="space-y-8">
                 <div class=" w-full grid grid-cols-3 gap-2 sm:gap-4">
-                    <button @click="tab = 'guardian'" :class="tab === 'guardian' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'"
-                        class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'guardian']) }}" class=" {{$list === 'guardian' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'}} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                         Guardian
-                    </button>
-                    <button @click="tab = 'category'" :class="tab === 'category' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'"
-                        class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    </a>
+                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'category']) }}" class=" {{$list === 'category' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'}} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                         Category
-                    </button>
-                    <button @click="tab = 'articles'" :class="tab === 'articles' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'"
-                        class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    </a>
+                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'article']) }}" class=" {{$list === 'article' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'}} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                         Article
-                    </button>
+                    </a>
                 </div>
-                <div x-show="tab === 'guardian'" class=" space-y-4">
+                <div class=" space-y-4">
                     <table class=" w-full">
                         <tr class=" border-b">
                             <th class=" pb-4 text-left">Guardian</th>
                             <th class=" pb-4 text-right">Access</th>
                         </tr>
-                        @foreach ($guardians as $item)
-                            <tr class="text-neutral-600 border-b">
-                                <td class=" font-semibold line-clamp-2 py-2">{{$item->url}}</td>
-                                <td class=" text-right">{{$item->access}}</td>
-                            </tr>
-                        @endforeach
-                    </table>
-                </div>
-                <div x-show="tab === 'category'" class=" space-y-4">
-                    <table class=" w-full">
-                        <tr class=" border-b">
-                            <th class=" pb-4 text-left">Category</th>
-                            <th class=" pb-4 text-right">Access</th>
-                        </tr>
-                        @foreach ($categories as $item)
-                            <tr class="text-neutral-600 border-b">
-                                <td class=" font-semibold line-clamp-2 py-2">{{$item->category}}</td>
-                                <td class=" text-right">{{$item->access}}</td>
-                            </tr>
-                        @endforeach
-                    </table>
-                </div>
-                <div x-show="tab === 'articles'" class=" space-y-4">
-                    <table class=" w-full">
-                        <tr class=" border-b">
-                            <th class=" pb-4 text-left">Title</th>
-                            <th class=" pb-4 text-right">Access</th>
-                        </tr>
-                        @foreach ($articles as $item)
-                            <tr class="text-neutral-600 border-b">
-                                <td class=" font-semibold line-clamp-2 py-2">{{$item->judul}}</td>
-                                <td class=" text-right">{{$item->access}}</td>
-                            </tr>
-                        @endforeach
+                        @if ($list === 'guardian')
+                            @foreach ($guardians as $item)
+                                <tr class="text-neutral-600 border-b">
+                                    <td class=" font-semibold line-clamp-2 py-2">{{$item->url}}</td>
+                                    <td class=" text-right">{{$item->access}}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        @if ($list === 'category')
+                            @foreach ($categories as $item)
+                                <tr class="text-neutral-600 border-b">
+                                    <td class=" font-semibold line-clamp-2 py-2">{{$item->category}}</td>
+                                    <td class=" text-right">{{$item->access}}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        @if ($list === 'article')
+                            @foreach ($articles as $item)
+                                <tr class="text-neutral-600 border-b">
+                                    <td class=" font-semibold line-clamp-2 py-2">{{$item->judul}}</td>
+                                    <td class=" text-right">{{$item->access}}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </table>
                 </div>
             </div>

@@ -17,6 +17,7 @@ class TrafficController extends Controller
     public function index(Request $request)
     {
         $mode = $request->query('mode', 'day'); // default day
+        $list = $request->query('list', 'guardian'); // default day
 
         if ($mode === 'day') {
             $traffic = $this->trafficDay();
@@ -41,113 +42,118 @@ class TrafficController extends Controller
             ];
         }
 
-        $guardians = GuardianWeb::whereHas('articles.articleshow', function ($q) use ($traffic) {
-            $q->whereIn('id', $traffic['articleIds']);
-        })
-            ->with('articles.articleshow')
-            ->simplePaginate(10);
+        $guardians = [];
+        $categories = [];
+        $articles = [];
 
-        $guardians =  $guardians->map(function ($guardian) use ($traffic, $start, $end) {
-
-            // Ambil semua article_show_id milik guardian
-            $ids = $guardian->articles
+        if ($list === 'guardian') {
+            $guardians = GuardianWeb::whereHas('articles.articleshow', function ($q) use ($traffic) {
+                    $q->whereIn('id', $traffic['articleIds']);
+                })
+                ->with('articles.articleshow')
+                ->simplePaginate(10);
+    
+            $guardians =  $guardians->map(function ($guardian) use ($traffic, $start, $end) {
+    
+                // Ambil semua article_show_id milik guardian
+                $ids = $guardian->articles
+                    ->flatMap(fn($a) => $a->articleshow->pluck('id'))
+                    ->filter(fn($id) => in_array($id, $traffic['articleIds']))
+                    ->values()
+                    ->toArray();
+    
+                // Hitung access-nya
+                $query = Traffic::whereIn('article_show_id', $ids);
+    
+                if ($start && $end) {
+                    $query->whereBetween('created_at', [$start, $end]);
+                }
+    
+                // Tambah field access
+                $guardian->access = $query->sum('access');
+    
+                return $guardian;
+            });
+    
+            $noGuardianArticleShowIds = Article::whereNull('guardian_web_id')
+                ->with('articleshow')
+                ->get()
                 ->flatMap(fn($a) => $a->articleshow->pluck('id'))
-                ->filter(fn($id) => in_array($id, $traffic['articleIds']))
+                ->filter(fn($id) => in_array($id, $traffic['articleIds'])) // ikut mode
                 ->values()
                 ->toArray();
-
-            // Hitung access-nya
-            $query = Traffic::whereIn('article_show_id', $ids);
-
+    
+            $noGuardianAccessQuery = Traffic::whereIn('article_show_id', $noGuardianArticleShowIds);
+    
             if ($start && $end) {
-                $query->whereBetween('created_at', [$start, $end]);
+                $noGuardianAccessQuery->whereBetween('created_at', [$start, $end]);
+            }
+    
+            $noGuardianAccess = $noGuardianAccessQuery->sum('access');
+    
+            if ($noGuardianAccess > 0) {
+                $guardians->push((object)[
+                    'id' => null,
+                    'url' => 'bizlink.sites.id',
+                    'access' => $noGuardianAccess,
+                ]);
             }
 
-            // Tambah field access
-            $guardian->access = $query->sum('access');
+            $guardians = $guardians
+                ->sortByDesc('access')
+                ->values();
+        } elseif ($list === 'category') {
+            $categories = ArticleCategory::whereHas('articles.articleshow', function ($q) use ($traffic) {
+                    $q->whereIn('id', $traffic['articleIds']);
+                })
+                ->with('articles.articleshow')
+                ->simplePaginate(10);
+    
+            $categories = $categories->map(function ($category) use ($traffic, $start, $end) {
+    
+                // Ambil semua article_show_id milik category
+                $ids = $category->articles
+                    ->flatMap(fn($a) => $a->articleshow->pluck('id'))
+                    ->filter(fn($id) => in_array($id, $traffic['articleIds']))
+                    ->values()
+                    ->toArray();
+    
+                // Hitung access
+                $query = Traffic::whereIn('article_show_id', $ids);
+    
+                if ($start && $end) {
+                    $query->whereBetween('created_at', [$start, $end]);
+                }
+    
+                // Tambah field access
+                $category->access = $query->sum('access');
+    
+                return $category;
+            });
 
-            return $guardian;
-        });
+            $categories = $categories
+                ->sortByDesc('access')
+                ->values();
+        } elseif ($list === 'article') {
+            $articles = ArticleShow::whereIn('id', $traffic['articleIds'])->simplePaginate(10);
+    
+            $articles = $articles->map(function ($article) use ($start, $end) {
+                $article->access = Traffic::where('article_show_id', $article->id)
+                    ->whereBetween('created_at', [$start, $end])
+                    ->sum('access');
+    
+                return $article;
+            });
 
-        $noGuardianArticleShowIds = Article::whereNull('guardian_web_id')
-            ->with('articleshow')
-            ->get()
-            ->flatMap(fn($a) => $a->articleshow->pluck('id'))
-            ->filter(fn($id) => in_array($id, $traffic['articleIds'])) // ikut mode
-            ->values()
-            ->toArray();
-
-        $noGuardianAccessQuery = Traffic::whereIn('article_show_id', $noGuardianArticleShowIds);
-
-        if ($start && $end) {
-            $noGuardianAccessQuery->whereBetween('created_at', [$start, $end]);
+            $articles = $articles
+                ->sortByDesc('access')
+                ->values();
         }
-
-        $noGuardianAccess = $noGuardianAccessQuery->sum('access');
-
-        if ($noGuardianAccess > 0) {
-            $guardians->push((object)[
-                'id' => null,
-                'url' => 'bizlink.sites.id',
-                'access' => $noGuardianAccess,
-            ]);
-        }
-
-        $categories = ArticleCategory::whereHas('articles.articleshow', function ($q) use ($traffic) {
-            $q->whereIn('id', $traffic['articleIds']);
-        })
-            ->with('articles.articleshow')
-            ->simplePaginate(10);
-
-        $categories = $categories->map(function ($category) use ($traffic, $start, $end) {
-
-            // Ambil semua article_show_id milik category
-            $ids = $category->articles
-                ->flatMap(fn($a) => $a->articleshow->pluck('id'))
-                ->filter(fn($id) => in_array($id, $traffic['articleIds']))
-                ->values()
-                ->toArray();
-
-            // Hitung access
-            $query = Traffic::whereIn('article_show_id', $ids);
-
-            if ($start && $end) {
-                $query->whereBetween('created_at', [$start, $end]);
-            }
-
-            // Tambah field access
-            $category->access = $query->sum('access');
-
-            return $category;
-        });
-
-        $articles = ArticleShow::whereIn('id', $traffic['articleIds'])->simplePaginate(10);
-
-        $articles = $articles->map(function ($article) use ($start, $end) {
-            $article->access = Traffic::where('article_show_id', $article->id)
-                ->whereBetween('created_at', [$start, $end])
-                ->sum('access');
-
-            return $article;
-        });
-
-        $guardians = $guardians
-            ->sortByDesc('access')
-            ->values();
-
-        $categories = $categories
-            ->sortByDesc('access')
-            ->values();
-
-        $articles = $articles
-            ->sortByDesc('access')
-            ->values();
-
 
         $totalaccess = Traffic::whereBetween('created_at', [$start, $end])
             ->sum('access');
 
-        return view('admin.traffic.index', compact('traffic', 'mode', 'guardians', 'articles', 'categories', 'totalaccess'));
+        return view('admin.traffic.index', compact('traffic', 'mode', 'list', 'guardians', 'articles', 'categories', 'totalaccess'));
     }
 
     private function trafficDay()
