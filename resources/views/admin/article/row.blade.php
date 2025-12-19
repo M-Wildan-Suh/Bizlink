@@ -45,10 +45,10 @@
                             <div
                                 class=" absolute gap-0.5 hidden group-hover:flex left-1/2 bottom-full bg-black text-white text-xs px-1 py-1 rounded-md">
                                 <span
-                                    class=" text-green-500">{{ $item->articleshow->where('article_id', $item->id)->where('status', 'publish')->count() }}</span>
+                                    class=" text-green-500">{{ $item->publish_count}}</span>
                                 /
                                 <span
-                                    class=" text-red-500">{{ $item->articleshow->where('article_id', $item->id)->count() }}</span>
+                                    class=" text-red-500">{{ $item->generate_count }}</span>
                             </div>
                         </button>
                     </a>

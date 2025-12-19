@@ -206,6 +206,18 @@ class ArticleController extends Controller
             ->latest()
             ->simplePaginate(20);
 
+        $data->getCollection()->transform(function ($item) {
+            if ($item->article_type === 'spintax') {
+                $item->publish_count = $item->articleshow
+                    ->where('status', 'publish')
+                    ->count();
+
+                $item->generate_count = $item->articleshow->count();
+            }
+
+            return $item;
+        });
+
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
         }
@@ -340,7 +352,7 @@ class ArticleController extends Controller
             foreach ($data as $item) {
                 fputcsv($file, [
                     $item->judul,
-                    $item->articles->guardian ? 'https://'.$item->articles->guardian->url.'/'.$item->slug : route('business', ['slug' => $item->slug]),
+                    $item->articles->guardian ? 'https://' . $item->articles->guardian->url . '/' . $item->slug : route('business', ['slug' => $item->slug]),
                     $item->articles->articlecategory->pluck('category')->implode(', '), // sesuaikan relasi
                 ]);
             }
