@@ -237,16 +237,16 @@ class ArticleApiController extends Controller
             ])
             ->first();
 
-        if ($traffic) {
-            // Sudah ada record di jam ini → tambah access
-            $traffic->increment('access');
-        } else {
-            // Belum ada record → buat baru
-            Traffic::create([
-                'article_show_id' => $articles->id,
-                'access' => 1,
-            ]);
-        }
+            if ($traffic) {
+                // Sudah ada record di jam ini → tambah access
+                $traffic->increment('access');
+            } else {
+                // Belum ada record → buat baru
+                Traffic::create([
+                    'article_show_id' => $articles->id,
+                    'access' => 1,
+                ]);
+            }
 
         if ($articles->phoneNumber) {
             $articles->no_tlp = $articles->phoneNumber->no_tlp;

@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Traffic extends Model
 {
     use HasFactory;
-    protected $fillable = ['article_show_id', 'accessa'];
+    protected $fillable = ['article_show_id', 'access'];
 }
