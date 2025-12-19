@@ -8,7 +8,7 @@
                     <div class=" space-y-2">
                         <div class=" w-44 h-10 sm:h-12 flex items-start overflow-hidden">
                             {{-- <p class=" text-3xl sm:text-4xl font-bold text-white">Bizlink</p> --}}
-                            <img src="{{ asset('assets/images/logo.png') }}" class=" max-h-full" alt="">
+                            <img src="{{ asset('assets/images/logo.webp') }}" class=" max-h-full" alt="">
                         </div>
                         <p class=" text-sm">Sebarkan bisnis anda dengan ribuan artikel.</p>
                     </div>
