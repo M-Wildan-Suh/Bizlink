@@ -132,7 +132,7 @@
                 <div class=" space-y-4">
                     <table class=" w-full">
                         <tr class=" border-b">
-                            <th class=" pb-4 text-left">Guardian</th>
+                            <th class=" pb-4 text-left capitalize">{{$list}}</th>
                             <th class=" pb-4 text-right">Access</th>
                         </tr>
                         @if ($list === 'guardian')
