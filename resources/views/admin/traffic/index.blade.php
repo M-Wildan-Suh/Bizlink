@@ -3,7 +3,8 @@
         <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20">
             <div class="space-y-4 sm:space-y-6">
                 <div class=" w-full flex sm:items-center flex-col sm:flex-row justify-between gap-4">
-                    <div class=" font-semibold px-4 py-1.5 rounded-md bg-byolink-1 text-white capitalize">Access This {{$mode}} : {{$totalaccess}}</div>
+                    <div class=" font-semibold px-4 py-1.5 rounded-md bg-byolink-1 text-white capitalize">Access This
+                        {{ $mode }} : {{ $totalaccess }}</div>
                     <div class=" w-auto grid grid-cols-3 gap-3 text-sm">
                         <a href="{{ route('traffic.index', ['mode' => 'day', 'list' => $list]) }}"
                             class="{{ $mode == 'day' ? 'bg-byolink-1 text-white' : ' text-black hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center px-2 py-1.5 font-semibold rounded-md duration-300">
@@ -119,47 +120,102 @@
         <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20">
             <div x-data="{ tab: 'guardian' }" class="space-y-8">
                 <div class=" w-full grid grid-cols-3 gap-2 sm:gap-4">
-                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'guardian']) }}" class=" {{$list === 'guardian' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'}} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'guardian']) }}"
+                        class=" {{ $list === 'guardian' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                         Guardian
                     </a>
-                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'category']) }}" class=" {{$list === 'category' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'}} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'category']) }}"
+                        class=" {{ $list === 'category' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                         Category
                     </a>
-                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'article']) }}" class=" {{$list === 'article' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1'}} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
+                    <a href="{{ route('traffic.index', ['mode' => $mode, 'list' => 'article']) }}"
+                        class=" {{ $list === 'article' ? 'bg-byolink-1 text-white' : 'text-black rounded-md hover:text-white bg-neutral-200 hover:bg-byolink-1' }} text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-4 py-2 font-semibold rounded-md duration-300">
                         Article
                     </a>
                 </div>
                 <div class=" space-y-4">
                     <table class=" w-full">
                         <tr class=" border-b">
-                            <th class=" pb-4 text-left capitalize">{{$list}}</th>
+                            <th class=" pb-4 text-left capitalize">{{ $list }}</th>
                             <th class=" pb-4 text-right">Access</th>
                         </tr>
-                        @if ($list === 'guardian')
-                            @foreach ($guardians as $item)
-                                <tr class="text-neutral-600 border-b">
-                                    <td class=" font-semibold line-clamp-2 py-2">{{$item->url}}</td>
-                                    <td class=" text-right">{{$item->access}}</td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        @if ($list === 'category')
-                            @foreach ($categories as $item)
-                                <tr class="text-neutral-600 border-b">
-                                    <td class=" font-semibold line-clamp-2 py-2">{{$item->category}}</td>
-                                    <td class=" text-right">{{$item->access}}</td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        @if ($list === 'article')
-                            @foreach ($articles as $item)
-                                <tr class="text-neutral-600 border-b">
-                                    <td class=" font-semibold line-clamp-2 py-2">{{$item->judul}}</td>
-                                    <td class=" text-right">{{$item->access}}</td>
-                                </tr>
-                            @endforeach
-                        @endif
+                        <tbody id="container">
+                            @include('admin.traffic.row')
+                        </tbody>
+                        <tr>
+                            <td id="loader" colspan="6" class=" text-center text-neutral-600 h-10">
+                                @if ($list === 'guardian')
+                                    {{ $guardians->count() > 10 ? 'Loading...' : 'Semua data telah dimuat' }}
+                                @endif
+                                @if ($list === 'category')
+                                    {{ $categories->count() > 10 ? 'Loading...' : 'Semua data telah dimuat' }}
+                                @endif
+                                @if ($list === 'article')
+                                    {{ $articles->count() > 10 ? 'Loading...' : 'Semua data telah dimuat' }}
+                                @endif
+                            </td>
+                        </tr>
                     </table>
+                    <script>
+                        let page = 2;
+                        let loading = false;
+
+                        function tableToggle() {
+                            return {
+                                openedIds: [],
+                                detail(id) {
+                                    const index = this.openedIds.indexOf(id);
+                                    if (index === -1) {
+                                        this.openedIds.push(id); // buka
+                                    } else {
+                                        this.openedIds.splice(index, 1); // tutup
+                                    }
+                                }
+                            };
+                        }
+
+                        window.addEventListener('scroll', () => {
+                            if (loading) return;
+
+                            const loader = document.getElementById('loader');
+
+                            const list = "{!! $list ? '&list=' . urlencode($list) : '' !!}";
+                            const mode = "{!! $mode ? '&mode=' . urlencode($mode) : '' !!}";
+                            const start = "{!! $start ? '&start=' . urlencode($start) : '' !!}";
+                            const end = "{!! $end ? '&end=' . urlencode($end) : '' !!}";
+
+                            // Scroll benar-benar mentok
+                            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                                loading = true;
+                                loader.textContent = 'Loading...';
+
+                                fetch(`?page=${page}${list}${mode}${start}${end}`, {
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    })
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        // Tambahkan delay 1 detik sebelum tampilkan data
+                                        setTimeout(() => {
+                                            if (html.trim() !== '') {
+                                                document.getElementById('container').insertAdjacentHTML(
+                                                    'beforeend', html);
+                                                page++;
+                                                loading = false;
+                                                loader.textContent = 'Loading...';
+                                            } else {
+                                                loader.textContent = 'Semua data telah dimuat';
+                                            }
+                                        }, 500); // delay 1 detik
+                                    })
+                                    .catch(() => {
+                                        loader.textContent = 'Gagal memuat data';
+                                        loading = false;
+                                    });
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>

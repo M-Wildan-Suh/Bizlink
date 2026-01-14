@@ -7,6 +7,7 @@ use App\Models\ArticleCategory;
 use App\Models\ArticleShow;
 use App\Models\GuardianWeb;
 use App\Models\Traffic;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class TrafficController extends Controller
@@ -20,24 +21,31 @@ class TrafficController extends Controller
         $list = $request->query('list', 'guardian'); // default day
 
         if ($mode === 'day') {
-            $traffic = $this->trafficDay();
 
-            $start = now()->subHours(24);
-            $end   = now();
+            $start = Carbon::parse($request->query('start', now()->subHours(23)))->startOfHour();
+
+            $end = Carbon::parse($request->query('end', now()))->startOfHour();
+
+            $traffic = $this->trafficDay($start, $end);
         } elseif ($mode === 'week') {
-            $traffic = $this->trafficWeek();
 
-            $start = now()->subDays(7);
-            $end   = now();
+            $start = Carbon::parse($request->query('start', now()->subDays(6)))->startOfDay();
+
+            $end = Carbon::parse($request->query('end', now()))->endOfDay();
+
+            $traffic = $this->trafficWeek($start, $end);
         } elseif ($mode === 'month') {
-            $traffic = $this->trafficMonth();
 
-            $start = now()->subDays(30);
-            $end   = now();
+            $start = Carbon::parse($request->query('start', now()->subDays(29)))->startOfDay();
+
+            $end = Carbon::parse($request->query('end', now()))->endOfDay();
+
+            $traffic = $this->trafficMonth($start, $end);
         } else {
+
             $traffic = [
-                'labels' => [],
-                'values' => [],
+                'labels'     => [],
+                'values'     => [],
                 'articleIds' => [],
             ];
         }
@@ -49,7 +57,7 @@ class TrafficController extends Controller
         if ($list === 'guardian') {
             $guardians = GuardianWeb::withSum(
                 ['traffic as access' => function ($q) use ($traffic, $start, $end) {
-                    $q->whereIn('article_show_id', $traffic['articleIds']);
+                    // $q->whereIn('article_show_id', $traffic['articleShowIds']);
 
                     if ($start && $end) {
                         $q->whereBetween('created_at', [$start, $end]);
@@ -62,7 +70,7 @@ class TrafficController extends Controller
 
             // hitung no guardian
             $noGuardianAccess = Traffic::whereNull('guardian_web_id')
-                ->whereIn('article_show_id', $traffic['articleIds'])
+                ->whereIn('article_show_id', $traffic['articleShowIds'])
                 ->whereBetween('created_at', [$start, $end])
                 ->sum('access');
 
@@ -94,22 +102,23 @@ class TrafficController extends Controller
                 }],
                 'access'
             )
-                ->whereIn('id', $traffic['articleIds'])
+                ->whereIn('id', $traffic['articleShowIds'])
                 ->orderByDesc('access')
                 ->simplePaginate(10);
+        }
+
+        if ($request->ajax()) {
+            return view('admin.traffic.row', compact('guardians', 'articles', 'categories', 'list'))->render();
         }
 
         $totalaccess = Traffic::whereBetween('created_at', [$start, $end])
             ->sum('access');
 
-        return view('admin.traffic.index', compact('traffic', 'mode', 'list', 'guardians', 'articles', 'categories', 'totalaccess'));
+        return view('admin.traffic.index', compact('traffic', 'mode', 'list', 'guardians', 'articles', 'categories', 'totalaccess', 'start', 'end'));
     }
 
-    private function trafficDay()
+    private function trafficDay($start, $end)
     {
-        $start = now()->subHours(23)->startOfHour();
-        $end   = now()->startOfHour();
-
         // 1️⃣ Ambil traffic per jam (SUM access)
         $traffic = Traffic::selectRaw('HOUR(created_at) as hour, SUM(access) as total')
             ->whereBetween('created_at', [$start, $end])
@@ -138,17 +147,15 @@ class TrafficController extends Controller
         return [
             'labels' => $labels,
             'values' => $values,
-            'articleIds' => $articleShowIds,
-            'articleShowIds' => $articleIds,
+            'articleIds' => $articleIds,
+            'articleShowIds' => $articleShowIds,
             'guardianWebIds' => $guardianIds,
         ];
     }
 
 
-    private function trafficWeek()
+    private function trafficWeek($start, $end)
     {
-        $start = now()->subDays(6)->startOfDay();
-        $end   = now()->endOfDay();
 
         // 1️⃣ Ambil total access per hari
         $traffic = Traffic::selectRaw('DATE(created_at) as date, SUM(access) as total')
@@ -177,17 +184,15 @@ class TrafficController extends Controller
         return [
             'labels' => $labels,
             'values' => $values,
-            'articleIds' => $articleShowIds,
-            'articleShowIds' => $articleIds,
+            'articleIds' => $articleIds,
+            'articleShowIds' => $articleShowIds,
             'guardianWebIds' => $guardianIds,
         ];
     }
 
 
-    private function trafficMonth()
+    private function trafficMonth($start, $end)
     {
-        $start = now()->subDays(30)->startOfDay();
-        $end   = now()->endOfDay();
 
         // 1️⃣ Ambil total access per hari
         $traffic = Traffic::selectRaw('DATE(created_at) as date, SUM(access) as total')
@@ -216,8 +221,8 @@ class TrafficController extends Controller
         return [
             'labels' => $labels,
             'values' => $values,
-            'articleIds' => $articleShowIds,
-            'articleShowIds' => $articleIds,
+            'articleIds' => $articleIds,
+            'articleShowIds' => $articleShowIds,
             'guardianWebIds' => $guardianIds,
         ];
     }
