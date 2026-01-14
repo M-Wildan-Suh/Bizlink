@@ -9,4 +9,8 @@ class Traffic extends Model
 {
     use HasFactory;
     protected $fillable = ['article_show_id', 'access'];
+
+    public function articleshow() {
+        return $this->hasOne(ArticleShow::class);
+    }
 }
