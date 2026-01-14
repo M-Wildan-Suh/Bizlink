@@ -11,4 +11,8 @@ class GuardianWeb extends Model
     public function articles(){
         return $this->hasMany(Article::class);
     }
+
+    public function traffic() {
+        return $this->hasMany(Traffic::class);
+    }
 }

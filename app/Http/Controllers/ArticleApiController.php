@@ -244,6 +244,8 @@ class ArticleApiController extends Controller
                 // Belum ada record → buat baru
                 Traffic::create([
                     'article_show_id' => $articles->id,
+                    'article_id' => $articles->article_id,
+                    'guardian_web_id' => $articles->article->guardian_web_id,
                     'access' => 1,
                 ]);
             }

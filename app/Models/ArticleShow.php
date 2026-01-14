@@ -24,4 +24,9 @@ class ArticleShow extends Model
     {
         return $this->belongsTo(Template::class, 'template_id');
     }
+
+    public function traffic()
+    {
+        return $this->hasMany(Traffic::class);
+    }
 }

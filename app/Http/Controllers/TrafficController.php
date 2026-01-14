@@ -32,8 +32,8 @@ class TrafficController extends Controller
         } elseif ($mode === 'month') {
             $traffic = $this->trafficMonth();
 
-            $end   = now();
             $start = now()->subDays(30);
+            $end   = now();
         } else {
             $traffic = [
                 'labels' => [],
@@ -47,103 +47,56 @@ class TrafficController extends Controller
         $articles = [];
 
         if ($list === 'guardian') {
-            $guardians = GuardianWeb::whereHas('articles.articleshow', function ($q) use ($traffic) {
-                $q->whereIn('id', $traffic['articleIds']);
-            })
-                ->with('articles.articleshow')
+            $guardians = GuardianWeb::withSum(
+                ['traffic as access' => function ($q) use ($traffic, $start, $end) {
+                    $q->whereIn('article_show_id', $traffic['articleIds']);
+
+                    if ($start && $end) {
+                        $q->whereBetween('created_at', [$start, $end]);
+                    }
+                }],
+                'access'
+            )
+                ->orderByDesc('access') // ✅ sorting di DB
                 ->simplePaginate(10);
 
-            $guardians =  $guardians->map(function ($guardian) use ($traffic, $start, $end) {
+            // hitung no guardian
+            $noGuardianAccess = Traffic::whereNull('guardian_web_id')
+                ->whereIn('article_show_id', $traffic['articleIds'])
+                ->whereBetween('created_at', [$start, $end])
+                ->sum('access');
 
-                // Ambil semua article_show_id milik guardian
-                $ids = $guardian->articles
-                    ->flatMap(fn($a) => $a->articleshow->pluck('id'))
-                    ->filter(fn($id) => in_array($id, $traffic['articleIds']))
-                    ->values()
-                    ->toArray();
+            // hanya untuk ditampilkan (bukan bagian pagination)
+            $noGuardian = null;
 
-                // Hitung access-nya
-                $query = Traffic::whereIn('article_show_id', $ids);
-
-                if ($start && $end) {
-                    $query->whereBetween('created_at', [$start, $end]);
-                }
-
-                // Tambah field access
-                $guardian->access = $query->sum('access');
-
-                return $guardian;
-            });
-
-            // $noGuardianArticleShowIds = Article::whereNull('guardian_web_id')
-            //     ->with('articleshow')
-            //     ->get()
-            //     ->flatMap(fn($a) => $a->articleshow->pluck('id'))
-            //     ->filter(fn($id) => in_array($id, $traffic['articleIds'])) // ikut mode
-            //     ->values()
-            //     ->toArray();
-
-            // $noGuardianAccessQuery = Traffic::whereIn('article_show_id', $noGuardianArticleShowIds)->whereBetween('created_at', [$start, $end]); 
-
-            // $noGuardianAccess = $noGuardianAccessQuery->sum('access');
-
-            // if ($noGuardianAccess > 0) {
-            //     $guardians->push((object)[
-            //         'id' => null,
-            //         'url' => 'bizlink.sites.id',
-            //         'access' => $noGuardianAccess,
-            //     ]);
-            // }
-
-            $guardians = $guardians
-                ->sortByDesc('access')
-                ->values();
+            if ($noGuardianAccess > 0) {
+                $noGuardian = (object)[
+                    'id' => null,
+                    'url' => 'bizlink.sites.id',
+                    'access' => $noGuardianAccess,
+                ];
+            }
         } elseif ($list === 'category') {
-            $categories = ArticleCategory::whereHas('articles.articleshow', function ($q) use ($traffic) {
-                $q->whereIn('id', $traffic['articleIds']);
-            })
-                ->with('articles.articleshow')
+            $categories = ArticleCategory::query()
+                ->withCount('articles')
+                ->addSelect([
+                    'total_access' => Traffic::selectRaw('COALESCE(SUM(access),0)')
+                        ->join('articles', 'articles.id', '=', 'traffic.article_id')
+                        ->join('pivot_articles_categories as pac', 'pac.article_id', '=', 'articles.id')
+                        ->whereColumn('pac.category_id', 'article_categories.id')
+                        ->whereBetween('traffic.created_at', [$start, $end])
+                ])
                 ->simplePaginate(10);
-
-            $categories = $categories->map(function ($category) use ($traffic, $start, $end) {
-
-                // Ambil semua article_show_id milik category
-                $ids = $category->articles
-                    ->flatMap(fn($a) => $a->articleshow->pluck('id'))
-                    ->filter(fn($id) => in_array($id, $traffic['articleIds']))
-                    ->values()
-                    ->toArray();
-
-                // Hitung access
-                $query = Traffic::whereIn('article_show_id', $ids);
-
-                if ($start && $end) {
-                    $query->whereBetween('created_at', [$start, $end]);
-                }
-
-                // Tambah field access
-                $category->access = $query->sum('access');
-
-                return $category;
-            });
-
-            $categories = $categories
-                ->sortByDesc('access')
-                ->values();
         } elseif ($list === 'article') {
-            $articles = ArticleShow::whereIn('id', $traffic['articleIds'])->simplePaginate(10);
-
-            $articles = $articles->map(function ($article) use ($start, $end) {
-                $article->access = Traffic::where('article_show_id', $article->id)
-                    ->whereBetween('created_at', [$start, $end])
-                    ->sum('access');
-
-                return $article;
-            });
-
-            $articles = $articles
-                ->sortByDesc('access')
-                ->values();
+            $articles = ArticleShow::withSum(
+                ['traffic as access' => function ($q) use ($start, $end) {
+                    $q->whereBetween('created_at', [$start, $end]);
+                }],
+                'access'
+            )
+                ->whereIn('id', $traffic['articleIds'])
+                ->orderByDesc('access')
+                ->simplePaginate(10);
         }
 
         $totalaccess = Traffic::whereBetween('created_at', [$start, $end])
@@ -154,96 +107,121 @@ class TrafficController extends Controller
 
     private function trafficDay()
     {
-        $labels = [];
-        $values = [];
-        $articleIds = [];
-
         $start = now()->subHours(23)->startOfHour();
         $end   = now()->startOfHour();
 
+        // 1️⃣ Ambil traffic per jam (SUM access)
+        $traffic = Traffic::selectRaw('HOUR(created_at) as hour, SUM(access) as total')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('hour')
+            ->pluck('total', 'hour');
+
+        // 2️⃣ Ambil semua article_show_id sekali
+        $ids = Traffic::whereBetween('created_at', [$start, $end])
+            ->get(['article_show_id', 'article_id', 'guardian_web_id']);
+
+        $articleShowIds = $ids->pluck('article_show_id')->unique()->values()->toArray();
+        $articleIds = $ids->pluck('article_id')->unique()->values()->toArray();
+        $guardianIds = $ids->pluck('guardian_web_id')->unique()->values()->toArray();
+
+
+        $labels = [];
+        $values = [];
+
         for ($time = $start->copy(); $time <= $end; $time->addHour()) {
+            $hour = (int) $time->format('H');
+
             $labels[] = $time->format('H:00');
-
-            $query = Traffic::whereBetween('created_at', [
-                $time,
-                $time->copy()->endOfHour()
-            ]);
-
-            $values[] = $query->sum('access');
-            $articleIds = array_merge(
-                $articleIds,
-                $query->pluck('article_show_id')->toArray()
-            );
+            $values[] = $traffic[$hour] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
-            'articleIds' => $articleIds,
+            'articleIds' => $articleShowIds,
+            'articleShowIds' => $articleIds,
+            'guardianWebIds' => $guardianIds,
         ];
     }
+
 
     private function trafficWeek()
     {
-        $labels = [];
-        $values = [];
-        $articleIds = [];
-
         $start = now()->subDays(6)->startOfDay();
         $end   = now()->endOfDay();
 
+        // 1️⃣ Ambil total access per hari
+        $traffic = Traffic::selectRaw('DATE(created_at) as date, SUM(access) as total')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
+        // 2️⃣ Ambil semua article_show_id sekali
+        $ids = Traffic::whereBetween('created_at', [$start, $end])
+            ->get(['article_show_id', 'article_id', 'guardian_web_id']);
+
+        $articleShowIds = $ids->pluck('article_show_id')->unique()->values()->toArray();
+        $articleIds = $ids->pluck('article_id')->unique()->values()->toArray();
+        $guardianIds = $ids->pluck('guardian_web_id')->unique()->values()->toArray();
+
+        $labels = [];
+        $values = [];
+
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
+            $dateKey = $day->toDateString();
+
             $labels[] = $day->format('D d');
-
-            $query = Traffic::whereBetween('created_at', [
-                $day->copy()->startOfDay(),
-                $day->copy()->endOfDay()
-            ]);
-
-            $values[] = $query->sum('access');
-            $articleIds = array_merge(
-                $articleIds,
-                $query->pluck('article_show_id')->toArray()
-            );
+            $values[] = $traffic[$dateKey] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
-            'articleIds' => $articleIds,
+            'articleIds' => $articleShowIds,
+            'articleShowIds' => $articleIds,
+            'guardianWebIds' => $guardianIds,
         ];
     }
+
 
     private function trafficMonth()
     {
-        $labels = [];
-        $values = [];
-        $articleIds = [];
-
-        $start = now()->subDays(29)->startOfDay();
+        $start = now()->subDays(30)->startOfDay();
         $end   = now()->endOfDay();
 
+        // 1️⃣ Ambil total access per hari
+        $traffic = Traffic::selectRaw('DATE(created_at) as date, SUM(access) as total')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
+        // 2️⃣ Ambil semua article_show_id sekali
+        $ids = Traffic::whereBetween('created_at', [$start, $end])
+            ->get(['article_show_id', 'article_id', 'guardian_web_id']);
+
+        $articleShowIds = $ids->pluck('article_show_id')->unique()->values()->toArray();
+        $articleIds = $ids->pluck('article_id')->unique()->values()->toArray();
+        $guardianIds = $ids->pluck('guardian_web_id')->unique()->values()->toArray();
+
+        $labels = [];
+        $values = [];
+
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
+            $dateKey = $day->toDateString();
+
             $labels[] = $day->format('d M');
-
-            $query = Traffic::whereBetween('created_at', [
-                $day->copy()->startOfDay(),
-                $day->copy()->endOfDay()
-            ]);
-
-            $values[] = $query->sum('access');
-            $articleIds = array_merge(
-                $articleIds,
-                $query->pluck('article_show_id')->toArray()
-            );
+            $values[] = $traffic[$dateKey] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
-            'articleIds' => $articleIds,
+            'articleIds' => $articleShowIds,
+            'articleShowIds' => $articleIds,
+            'guardianWebIds' => $guardianIds,
         ];
     }
+
 
 
 
