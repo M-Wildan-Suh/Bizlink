@@ -274,6 +274,16 @@ class ArticleApiController extends Controller
         ]);
     }
 
+    public function whatsapp(Request $request)
+    {
+        $phone   = $request->phone; // pakai format internasional tanpa +
+        $message = 'Halo saya dapat info dari '. $request->url;
+
+        $url = 'https://wa.me/' . $request->phone. '?text=' . urlencode($message);
+
+        return redirect()->away($url);
+    }
+
     public function notFound($code)
     {
         $web = $this->findWebByCode($code);

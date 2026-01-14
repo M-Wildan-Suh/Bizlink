@@ -22,18 +22,18 @@ class TrafficController extends Controller
         if ($mode === 'day') {
             $traffic = $this->trafficDay();
 
-            $start = now()->startOfDay();
-            $end   = now()->endOfDay();
+            $start = now()->subHours(24);
+            $end   = now();
         } elseif ($mode === 'week') {
             $traffic = $this->trafficWeek();
 
-            $start = now()->startOfWeek();
-            $end   = now()->endOfWeek();
+            $start = now()->subDays(7);
+            $end   = now();
         } elseif ($mode === 'month') {
             $traffic = $this->trafficMonth();
 
-            $start = now()->startOfMonth();
-            $end   = now()->endOfMonth();
+            $end   = now();
+            $start = now()->subDays(30);
         } else {
             $traffic = [
                 'labels' => [],
@@ -48,33 +48,33 @@ class TrafficController extends Controller
 
         if ($list === 'guardian') {
             $guardians = GuardianWeb::whereHas('articles.articleshow', function ($q) use ($traffic) {
-                    $q->whereIn('id', $traffic['articleIds']);
-                })
+                $q->whereIn('id', $traffic['articleIds']);
+            })
                 ->with('articles.articleshow')
                 ->simplePaginate(10);
-    
+
             $guardians =  $guardians->map(function ($guardian) use ($traffic, $start, $end) {
-    
+
                 // Ambil semua article_show_id milik guardian
                 $ids = $guardian->articles
                     ->flatMap(fn($a) => $a->articleshow->pluck('id'))
                     ->filter(fn($id) => in_array($id, $traffic['articleIds']))
                     ->values()
                     ->toArray();
-    
+
                 // Hitung access-nya
                 $query = Traffic::whereIn('article_show_id', $ids);
-    
+
                 if ($start && $end) {
                     $query->whereBetween('created_at', [$start, $end]);
                 }
-    
+
                 // Tambah field access
                 $guardian->access = $query->sum('access');
-    
+
                 return $guardian;
             });
-    
+
             $noGuardianArticleShowIds = Article::whereNull('guardian_web_id')
                 ->with('articleshow')
                 ->get()
@@ -82,15 +82,11 @@ class TrafficController extends Controller
                 ->filter(fn($id) => in_array($id, $traffic['articleIds'])) // ikut mode
                 ->values()
                 ->toArray();
-    
-            $noGuardianAccessQuery = Traffic::whereIn('article_show_id', $noGuardianArticleShowIds);
-    
-            if ($start && $end) {
-                $noGuardianAccessQuery->whereBetween('created_at', [$start, $end]);
-            }
-    
+
+            $noGuardianAccessQuery = Traffic::whereIn('article_show_id', $noGuardianArticleShowIds)->whereBetween('created_at', [$start, $end]); 
+
             $noGuardianAccess = $noGuardianAccessQuery->sum('access');
-    
+
             if ($noGuardianAccess > 0) {
                 $guardians->push((object)[
                     'id' => null,
@@ -104,30 +100,30 @@ class TrafficController extends Controller
                 ->values();
         } elseif ($list === 'category') {
             $categories = ArticleCategory::whereHas('articles.articleshow', function ($q) use ($traffic) {
-                    $q->whereIn('id', $traffic['articleIds']);
-                })
+                $q->whereIn('id', $traffic['articleIds']);
+            })
                 ->with('articles.articleshow')
                 ->simplePaginate(10);
-    
+
             $categories = $categories->map(function ($category) use ($traffic, $start, $end) {
-    
+
                 // Ambil semua article_show_id milik category
                 $ids = $category->articles
                     ->flatMap(fn($a) => $a->articleshow->pluck('id'))
                     ->filter(fn($id) => in_array($id, $traffic['articleIds']))
                     ->values()
                     ->toArray();
-    
+
                 // Hitung access
                 $query = Traffic::whereIn('article_show_id', $ids);
-    
+
                 if ($start && $end) {
                     $query->whereBetween('created_at', [$start, $end]);
                 }
-    
+
                 // Tambah field access
                 $category->access = $query->sum('access');
-    
+
                 return $category;
             });
 
@@ -136,12 +132,12 @@ class TrafficController extends Controller
                 ->values();
         } elseif ($list === 'article') {
             $articles = ArticleShow::whereIn('id', $traffic['articleIds'])->simplePaginate(10);
-    
+
             $articles = $articles->map(function ($article) use ($start, $end) {
                 $article->access = Traffic::where('article_show_id', $article->id)
                     ->whereBetween('created_at', [$start, $end])
                     ->sum('access');
-    
+
                 return $article;
             });
 
@@ -162,16 +158,22 @@ class TrafficController extends Controller
         $values = [];
         $articleIds = [];
 
-        for ($h = 0; $h < 24; $h++) {
-            $labels[] = sprintf("%02d:00", $h);
+        $start = now()->subHours(23)->startOfHour();
+        $end   = now()->startOfHour();
 
-            $query = Traffic::whereRaw('HOUR(created_at) = ?', [$h])
-                ->whereDate('created_at', today());
+        for ($time = $start->copy(); $time <= $end; $time->addHour()) {
+            $labels[] = $time->format('H:00');
+
+            $query = Traffic::whereBetween('created_at', [
+                $time,
+                $time->copy()->endOfHour()
+            ]);
 
             $values[] = $query->sum('access');
-
-            // Tambah langsung ke array utama (flat)
-            $articleIds = array_merge($articleIds, $query->pluck('article_show_id')->toArray());
+            $articleIds = array_merge(
+                $articleIds,
+                $query->pluck('article_show_id')->toArray()
+            );
         }
 
         return [
@@ -187,18 +189,22 @@ class TrafficController extends Controller
         $values = [];
         $articleIds = [];
 
-        $start = now()->startOfWeek();
-        $end = now()->endOfWeek();
+        $start = now()->subDays(6)->startOfDay();
+        $end   = now()->endOfDay();
 
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
             $labels[] = $day->format('D d');
 
-            $query = Traffic::whereDate('created_at', $day);
+            $query = Traffic::whereBetween('created_at', [
+                $day->copy()->startOfDay(),
+                $day->copy()->endOfDay()
+            ]);
 
             $values[] = $query->sum('access');
-
-            // Flat array
-            $articleIds = array_merge($articleIds, $query->pluck('article_show_id')->toArray());
+            $articleIds = array_merge(
+                $articleIds,
+                $query->pluck('article_show_id')->toArray()
+            );
         }
 
         return [
@@ -214,18 +220,22 @@ class TrafficController extends Controller
         $values = [];
         $articleIds = [];
 
-        $start = now()->startOfMonth();
-        $end = now()->endOfMonth();
+        $start = now()->subDays(29)->startOfDay();
+        $end   = now()->endOfDay();
 
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
-            $labels[] = $day->format('d');
+            $labels[] = $day->format('d M');
 
-            $query = Traffic::whereDate('created_at', $day);
+            $query = Traffic::whereBetween('created_at', [
+                $day->copy()->startOfDay(),
+                $day->copy()->endOfDay()
+            ]);
 
             $values[] = $query->sum('access');
-
-            // Flat array
-            $articleIds = array_merge($articleIds, $query->pluck('article_show_id')->toArray());
+            $articleIds = array_merge(
+                $articleIds,
+                $query->pluck('article_show_id')->toArray()
+            );
         }
 
         return [
@@ -234,6 +244,7 @@ class TrafficController extends Controller
             'articleIds' => $articleIds,
         ];
     }
+
 
 
     /**

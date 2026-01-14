@@ -9,6 +9,7 @@ use App\Models\PhoneNumber;
 use App\Models\Template;
 use App\Models\Traffic;
 use App\Models\User;
+use App\Models\WaTraffic;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -207,6 +208,38 @@ class PageController extends Controller
         $hp = PhoneNumber::first()->no_tlp;
 
         return response()->view('guest.pagenotfound', compact('category', 'hp'), 404);
+    }
+
+    public function whatsapp(Request $request)
+    {
+        $article = ArticleShow::find($request->id);
+
+        $nowHour = Carbon::now()->format('Y-m-d H:00:00');
+
+        // Cari traffic dalam jam yang sama
+        $watraffic = WaTraffic::where('article_show_id', $article->id)
+            ->whereBetween('created_at', [
+                Carbon::parse($nowHour),
+                Carbon::parse($nowHour)->addHour()
+            ])
+            ->first();
+
+        if ($watraffic) {
+            // Sudah ada record di jam ini → tambah access
+            $watraffic->increment('access');
+        } else {
+            // Belum ada record → buat baru
+            WaTraffic::create([
+                'article_show_id' => $article->id,
+                'access' => 1,
+            ]);
+        }
+
+        $message = 'Halo saya dapat info dari '. $article->slug;
+
+        $url = 'https://wa.me/' . $request->phone. '?text=' . urlencode($message);
+
+        return redirect()->away($url);
     }
 
     public function test()

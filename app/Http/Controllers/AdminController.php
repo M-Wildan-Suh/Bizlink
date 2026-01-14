@@ -91,40 +91,61 @@ class AdminController extends Controller
     {
         $labels = [];
         $values = [];
+        $articleIds = [];
 
-        for ($h = 0; $h < 24; $h++) {
-            $labels[] = sprintf("%02d:00", $h);
+        $start = now()->subHours(23)->startOfHour();
+        $end   = now()->startOfHour();
 
-            $values[] = Traffic::whereRaw('HOUR(created_at) = ?', [$h])
-                ->whereDate('created_at', today())
-                ->sum('access');
+        for ($time = $start->copy(); $time <= $end; $time->addHour()) {
+            $labels[] = $time->format('H:00');
+
+            $query = Traffic::whereBetween('created_at', [
+                $time,
+                $time->copy()->endOfHour()
+            ]);
+
+            $values[] = $query->sum('access');
+            $articleIds = array_merge(
+                $articleIds,
+                $query->pluck('article_show_id')->toArray()
+            );
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
+            'articleIds' => $articleIds,
         ];
     }
-
 
     private function trafficWeek()
     {
         $labels = [];
         $values = [];
+        $articleIds = [];
 
-        $start = now()->startOfWeek();
-        $end = now()->endOfWeek();
+        $start = now()->subDays(6)->startOfDay();
+        $end   = now()->endOfDay();
 
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
             $labels[] = $day->format('D d');
 
-            $values[] = Traffic::whereDate('created_at', $day)
-                ->sum('access');
+            $query = Traffic::whereBetween('created_at', [
+                $day->copy()->startOfDay(),
+                $day->copy()->endOfDay()
+            ]);
+
+            $values[] = $query->sum('access');
+            $articleIds = array_merge(
+                $articleIds,
+                $query->pluck('article_show_id')->toArray()
+            );
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
+            'articleIds' => $articleIds,
         ];
     }
 
@@ -132,20 +153,30 @@ class AdminController extends Controller
     {
         $labels = [];
         $values = [];
+        $articleIds = [];
 
-        $start = now()->startOfMonth();
-        $end = now()->endOfMonth();
+        $start = now()->subDays(29)->startOfDay();
+        $end   = now()->endOfDay();
 
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
-            $labels[] = $day->format('d');
+            $labels[] = $day->format('d M');
 
-            $values[] = Traffic::whereDate('created_at', $day)
-                ->sum('access');
+            $query = Traffic::whereBetween('created_at', [
+                $day->copy()->startOfDay(),
+                $day->copy()->endOfDay()
+            ]);
+
+            $values[] = $query->sum('access');
+            $articleIds = array_merge(
+                $articleIds,
+                $query->pluck('article_show_id')->toArray()
+            );
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
+            'articleIds' => $articleIds,
         ];
     }
 }

@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/sitemap/{code}', [ArticleApiController::class, 'sitemap']);
 
 Route::middleware('daily_schedule')->group(function () {
+    Route::get('/whatsapp', [ArticleApiController::class, 'whatsapp']);
     Route::get('/article/{code}', [ArticleApiController::class, 'index']);
     Route::get('/article/user/{user}/{code}', [ArticleApiController::class, 'indexUser']);
     Route::get('/article/category/{category}/{code}', [ArticleApiController::class, 'indexCategory']);

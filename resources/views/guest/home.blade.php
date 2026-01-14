@@ -1,7 +1,7 @@
 <x-layout.guest title="Bizlink" :category="$category">
     <div class=" w-full min-h-[calc(100vh-370px)]">
         <div class=" w-full py-6 sm:py-10 px-4 sm:px-6 space-y-8 sm:space-y-12">
-            @include('components.guest.home.header')
+        @include('components.guest.home.header')
             <div class=" w-full max-w-[1080px] mx-auto">
                 <div class=" grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class=" md:col-span-3 w-full space-y-4 sm:space-y-6">

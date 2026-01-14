@@ -60,6 +60,8 @@ Route::middleware('daily_schedule')->group(function () {
         return app(PageController::class)->article($request, null, null, $tag);
     })->name('pagetag');
 
+    Route::get('/whatsapp', [PageController::class, 'whatsapp'])->name('whatsapp');
+
     Route::get('/page-not-found', [PageController::class, 'notFound'])->name('not.found');
 });
 
