@@ -173,7 +173,7 @@ class PageController extends Controller
             Traffic::create([
                 'article_show_id' => $data->id,
                 'article_id' => $data->article_id,
-                'guardian_web_id' => $data->article->guardian_web_id,
+                'guardian_web_id' => $data->articles->guardian_web_id,
                 'access' => 1,
             ]);
         }
