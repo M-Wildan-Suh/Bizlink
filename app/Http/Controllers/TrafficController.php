@@ -63,6 +63,7 @@ class TrafficController extends Controller
                 }],
                 'access'
             )
+                ->having('access', '>', 0) // 🔥 FILTER DI SINI
                 ->orderByDesc('access')
                 ->simplePaginate(10);
 
@@ -102,6 +103,7 @@ class TrafficController extends Controller
                         ->whereColumn('pac.category_id', 'article_categories.id')
                         ->whereBetween('traffic.created_at', [$start, $end])
                 ])
+                ->having('access', '>', 0) // 🔥 FILTER
                 ->orderByDesc('access')
                 ->simplePaginate(10);
         } elseif ($list === 'article') {
@@ -112,6 +114,7 @@ class TrafficController extends Controller
                 'access'
             )
                 ->whereIn('id', $traffic['articleShowIds'])
+                ->having('access', '>', 0) // 🔥 FILTER
                 ->orderByDesc('access')
                 ->simplePaginate(10);
         }
