@@ -96,7 +96,7 @@ class TrafficController extends Controller
             $categories = ArticleCategory::query()
                 ->withCount('articles')
                 ->addSelect([
-                    'total_access' => Traffic::selectRaw('COALESCE(SUM(access),0)')
+                    'access' => Traffic::selectRaw('COALESCE(SUM(access),0)')
                         ->join('articles', 'articles.id', '=', 'traffic.article_id')
                         ->join('pivot_articles_categories as pac', 'pac.article_id', '=', 'articles.id')
                         ->whereColumn('pac.category_id', 'article_categories.id')
