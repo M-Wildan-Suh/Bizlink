@@ -56,33 +56,41 @@ class TrafficController extends Controller
 
         if ($list === 'guardian') {
             $guardians = GuardianWeb::withSum(
-                ['traffic as access' => function ($q) use ($traffic, $start, $end) {
-                    // $q->whereIn('article_show_id', $traffic['articleShowIds']);
-
+                ['traffic as access' => function ($q) use ($start, $end) {
                     if ($start && $end) {
                         $q->whereBetween('created_at', [$start, $end]);
                     }
                 }],
                 'access'
             )
-                ->orderByDesc('access') // ✅ sorting di DB
+                ->orderByDesc('access')
                 ->simplePaginate(10);
 
             // hitung no guardian
-            $noGuardianAccess = Traffic::whereNull('guardian_web_id')
-                ->whereIn('article_show_id', $traffic['articleShowIds'])
-                ->whereBetween('created_at', [$start, $end])
-                ->sum('access');
+            if (!$request->ajax()) {
+                $noGuardianAccess = Traffic::whereNull('guardian_web_id')
+                    ->whereIn('article_show_id', $traffic['articleShowIds'])
+                    ->whereBetween('created_at', [$start, $end])
+                    ->sum('access');
 
-            // hanya untuk ditampilkan (bukan bagian pagination)
-            $noGuardian = null;
+                if ($noGuardianAccess > 0) {
 
-            if ($noGuardianAccess > 0) {
-                $noGuardian = (object)[
-                    'id' => null,
-                    'url' => 'bizlink.sites.id',
-                    'access' => $noGuardianAccess,
-                ];
+                    // ambil collection paginator
+                    $items = $guardians->getCollection();
+
+                    // gabungkan item tambahan
+                    $items->push((object)[
+                        'id' => null,
+                        'url' => 'bizlink.sites.id',
+                        'access' => $noGuardianAccess,
+                    ]);
+
+                    // 🔥 SORT ULANG BERDASARKAN ACCESS
+                    $items = $items->sortByDesc('access')->values();
+
+                    // set kembali ke paginator
+                    $guardians->setCollection($items);
+                }
             }
         } elseif ($list === 'category') {
             $categories = ArticleCategory::query()
