@@ -102,6 +102,7 @@ class TrafficController extends Controller
                         ->whereColumn('pac.category_id', 'article_categories.id')
                         ->whereBetween('traffic.created_at', [$start, $end])
                 ])
+                ->orderByDesc('access')
                 ->simplePaginate(10);
         } elseif ($list === 'article') {
             $articles = ArticleShow::withSum(
