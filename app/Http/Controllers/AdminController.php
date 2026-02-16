@@ -23,22 +23,54 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
-        $data = GuardianWeb::all();
+        $data = GuardianWeb::select(['id', 'url', 'code'])
+            ->withCount([
+                'articles as spintaxcount' => function ($query) {
+                    $query->where('article_type', 'spintax');
+                },
+                'articles as uniquecount' => function ($query) {
+                    $query->where('article_type', 'unique');
+                },
+            ])
+            ->get();
 
-        $data->transform(function ($data) {
-            $data->spintaxcount = $this->formatCount($data->articles->where('article_type', 'spintax')->count());
+        $spinCountByGuardian = ArticleShow::query()
+            ->join('articles', 'articles.id', '=', 'article_shows.article_id')
+            ->where('articles.article_type', 'spintax')
+            ->groupBy('articles.guardian_web_id')
+            ->selectRaw('articles.guardian_web_id, COUNT(article_shows.id) as total')
+            ->pluck('total', 'articles.guardian_web_id');
 
-            $data->spincount = $this->formatCount(ArticleShow::whereHas('articles', function ($query) use ($data) {
-                $query->where('guardian_web_id', $data->id)
-                    ->where('article_type', 'spintax');
-            })->count());
+        $categoryRows = ArticleCategory::query()
+            ->join('pivot_articles_categories as pac', 'pac.category_id', '=', 'article_categories.id')
+            ->join('articles', 'articles.id', '=', 'pac.article_id')
+            ->select([
+                'articles.guardian_web_id',
+                'article_categories.category',
+                'article_categories.slug',
+            ])
+            ->distinct()
+            ->get();
 
-            $data->categories = ArticleCategory::whereHas('articles', function ($query) use ($data) {
-                $query->where('guardian_web_id', $data->id);
-            })->select(['category', 'slug'])->get();
+        $categoriesByGuardian = $categoryRows
+            ->groupBy(function ($item) {
+                return is_null($item->guardian_web_id) ? 'main' : (string) $item->guardian_web_id;
+            })
+            ->map(function ($rows) {
+                return $rows->map(function ($row) {
+                    return (object) [
+                        'category' => $row->category,
+                        'slug' => $row->slug,
+                    ];
+                })->values();
+            });
 
-            $data->uniquecount = $this->formatCount($data->articles->where('article_type', 'unique')->count());
-            return $data;
+        $data->transform(function ($item) use ($spinCountByGuardian, $categoriesByGuardian) {
+            $item->spintaxcount = $this->formatCount((int) $item->spintaxcount);
+            $item->spincount = $this->formatCount((int) ($spinCountByGuardian[$item->id] ?? 0));
+            $item->uniquecount = $this->formatCount((int) $item->uniquecount);
+            $item->categories = collect($categoriesByGuardian[(string) $item->id] ?? []);
+            return $item;
         });
 
         // Manual website
@@ -46,14 +78,16 @@ class AdminController extends Controller
         $manual->id = null;
         $manual->url = 'Main';
 
-        $manual->categories = ArticleCategory::whereHas('articles', function ($query) {
-            $query->whereNull('guardian_web_id');
-        })->select(['category', 'slug'])->get();
+        $manual->categories = collect($categoriesByGuardian['main'] ?? []);
 
         $manual->spintaxcount = $this->formatCount(Article::whereNull('guardian_web_id')->where('article_type', 'spintax')->count());
-        $manual->spincount = $this->formatCount(ArticleShow::whereHas('articles', function ($query) {
-            $query->whereNull('guardian_web_id')->where('article_type', 'spintax');
-        })->count());
+        $manual->spincount = $this->formatCount(
+            ArticleShow::query()
+                ->join('articles', 'articles.id', '=', 'article_shows.article_id')
+                ->whereNull('articles.guardian_web_id')
+                ->where('articles.article_type', 'spintax')
+                ->count()
+        );
         $manual->uniquecount = $this->formatCount(Article::whereNull('guardian_web_id')->where('article_type', 'unique')->count());
 
         $data->prepend($manual);
@@ -75,12 +109,15 @@ class AdminController extends Controller
         }
 
         // Other dashboard data
-        $guardian = $this->formatCount(GuardianWeb::all()->count());
-        $sc = $this->formatCount(SourceCode::all()->count());
+        $guardian = $this->formatCount(GuardianWeb::count());
+        $sc = $this->formatCount(SourceCode::count());
         $spintax = $this->formatCount(Article::where('article_type', 'spintax')->count());
-        $spin = $this->formatCount(ArticleShow::whereHas('articles', function ($query) {
-            $query->where('article_type', 'spintax');
-        })->count());
+        $spin = $this->formatCount(
+            ArticleShow::query()
+                ->join('articles', 'articles.id', '=', 'article_shows.article_id')
+                ->where('articles.article_type', 'spintax')
+                ->count()
+        );
         $unique = $this->formatCount(Article::where('article_type', 'unique')->count());
 
         return view('dashboard', compact('data', 'sc', 'spintax', 'spin', 'unique', 'guardian', 'traffic', 'mode'));
@@ -89,88 +126,52 @@ class AdminController extends Controller
 
     private function trafficDay()
     {
-        $labels = [];
-        $values = [];
-        $articleIds = [];
-
         $start = now()->subHours(23)->startOfHour();
         $end   = now()->startOfHour();
-
-        for ($time = $start->copy(); $time <= $end; $time->addHour()) {
-            $labels[] = $time->format('H:00');
-
-            $query = Traffic::whereBetween('created_at', [
-                $time,
-                $time->copy()->endOfHour()
-            ]);
-
-            $values[] = $query->sum('access');
-            $articleIds = array_merge(
-                $articleIds,
-                $query->pluck('article_show_id')->toArray()
-            );
-        }
-
-        return [
-            'labels' => $labels,
-            'values' => $values,
-            'articleIds' => $articleIds,
-        ];
+        return $this->buildTrafficSeries($start, $end, 'hour', 'H:00');
     }
 
     private function trafficWeek()
     {
-        $labels = [];
-        $values = [];
-        $articleIds = [];
-
         $start = now()->subDays(6)->startOfDay();
         $end   = now()->endOfDay();
-
-        for ($day = $start->copy(); $day <= $end; $day->addDay()) {
-            $labels[] = $day->format('D d');
-
-            $query = Traffic::whereBetween('created_at', [
-                $day->copy()->startOfDay(),
-                $day->copy()->endOfDay()
-            ]);
-
-            $values[] = $query->sum('access');
-            $articleIds = array_merge(
-                $articleIds,
-                $query->pluck('article_show_id')->toArray()
-            );
-        }
-
-        return [
-            'labels' => $labels,
-            'values' => $values,
-            'articleIds' => $articleIds,
-        ];
+        return $this->buildTrafficSeries($start, $end, 'day', 'D d');
     }
 
     private function trafficMonth()
+    {
+        $start = now()->subDays(29)->startOfDay();
+        $end   = now()->endOfDay();
+        return $this->buildTrafficSeries($start, $end, 'day', 'd M');
+    }
+
+    private function buildTrafficSeries(Carbon $start, Carbon $end, string $step, string $labelFormat): array
     {
         $labels = [];
         $values = [];
         $articleIds = [];
 
-        $start = now()->subDays(29)->startOfDay();
-        $end   = now()->endOfDay();
+        $rawRows = Traffic::whereBetween('created_at', [$start, $end])
+            ->select(['created_at', 'access', 'article_show_id'])
+            ->get();
 
-        for ($day = $start->copy(); $day <= $end; $day->addDay()) {
-            $labels[] = $day->format('d M');
+        $bucketValues = [];
+        foreach ($rawRows as $row) {
+            $time = Carbon::parse($row->created_at);
+            $bucketKey = $step === 'hour'
+                ? $time->format('Y-m-d H:00:00')
+                : $time->toDateString();
 
-            $query = Traffic::whereBetween('created_at', [
-                $day->copy()->startOfDay(),
-                $day->copy()->endOfDay()
-            ]);
+            $bucketValues[$bucketKey] = ($bucketValues[$bucketKey] ?? 0) + (int) $row->access;
+            $articleIds[] = $row->article_show_id;
+        }
 
-            $values[] = $query->sum('access');
-            $articleIds = array_merge(
-                $articleIds,
-                $query->pluck('article_show_id')->toArray()
-            );
+        for ($cursor = $start->copy(); $cursor <= $end; $cursor = $step === 'hour' ? $cursor->addHour() : $cursor->addDay()) {
+            $labels[] = $cursor->format($labelFormat);
+            $key = $step === 'hour'
+                ? $cursor->format('Y-m-d H:00:00')
+                : $cursor->toDateString();
+            $values[] = (int) ($bucketValues[$key] ?? 0);
         }
 
         return [

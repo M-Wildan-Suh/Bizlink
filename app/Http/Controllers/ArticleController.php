@@ -180,7 +180,18 @@ class ArticleController extends Controller
 
         $filter = $status === 'schedule' ? 1 : 0;
 
-        $data = Article::when($filterweb === 'main', function ($query) {
+        $data = Article::select(['id', 'judul', 'article_type', 'user_id', 'guardian_web_id', 'schedule', 'created_at'])
+            ->addSelect([
+                'first_articleshow_id' => ArticleShow::select('id')
+                    ->whereColumn('article_id', 'articles.id')
+                    ->orderBy('id', 'asc')
+                    ->limit(1),
+                'first_articleshow_slug' => ArticleShow::select('slug')
+                    ->whereColumn('article_id', 'articles.id')
+                    ->orderBy('id', 'asc')
+                    ->limit(1),
+            ])
+            ->when($filterweb === 'main', function ($query) {
             $query->whereNull('guardian_web_id');
         })
             ->when($filterweb && $filterweb != 'main' && $filterweb != 'all', function ($query) use ($filterweb) {
@@ -193,7 +204,14 @@ class ArticleController extends Controller
             })
             ->withCount(['articleshow as articleshow_private_count' => function ($query) {
                 $query->where('status', 'private');
-            }])
+            }, 'articleshow as publish_count' => function ($query) {
+                $query->where('status', 'publish');
+            }, 'articleshow as generate_count'])
+            ->with([
+                'articlecategory:id,category,slug',
+                'user:id,name',
+                'guardian:id,url',
+            ])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
 
@@ -205,18 +223,6 @@ class ArticleController extends Controller
             })
             ->latest()
             ->simplePaginate(20);
-
-        $data->getCollection()->transform(function ($item) {
-            if ($item->article_type === 'spintax') {
-                $item->publish_count = $item->articleshow
-                    ->where('status', 'publish')
-                    ->count();
-
-                $item->generate_count = $item->articleshow->count();
-            }
-
-            return $item;
-        });
 
         if ($request->ajax()) {
             return view('admin.article.row', compact('data'))->render();
@@ -233,7 +239,18 @@ class ArticleController extends Controller
 
         $filter = $status === 'schedule' ? 1 : 0;
 
-        $data = Article::where('article_type', 'spintax')
+        $data = Article::select(['id', 'judul', 'article_type', 'user_id', 'guardian_web_id', 'schedule', 'created_at'])
+            ->addSelect([
+                'first_articleshow_id' => ArticleShow::select('id')
+                    ->whereColumn('article_id', 'articles.id')
+                    ->orderBy('id', 'asc')
+                    ->limit(1),
+                'first_articleshow_slug' => ArticleShow::select('slug')
+                    ->whereColumn('article_id', 'articles.id')
+                    ->orderBy('id', 'asc')
+                    ->limit(1),
+            ])
+            ->where('article_type', 'spintax')
             ->when($filterweb === 'main', function ($query) {
                 $query->whereNull('guardian_web_id');
             })
@@ -250,7 +267,14 @@ class ArticleController extends Controller
             })
             ->withCount(['articleshow as articleshow_private_count' => function ($query) {
                 $query->where('status', 'private');
-            }])
+            }, 'articleshow as publish_count' => function ($query) {
+                $query->where('status', 'publish');
+            }, 'articleshow as generate_count'])
+            ->with([
+                'articlecategory:id,category,slug',
+                'user:id,name',
+                'guardian:id,url',
+            ])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
 
@@ -278,7 +302,18 @@ class ArticleController extends Controller
 
         $filter = $status === 'schedule' ? 1 : 0;
 
-        $data = Article::where('article_type', 'unique')
+        $data = Article::select(['id', 'judul', 'article_type', 'user_id', 'guardian_web_id', 'schedule', 'created_at'])
+            ->addSelect([
+                'first_articleshow_id' => ArticleShow::select('id')
+                    ->whereColumn('article_id', 'articles.id')
+                    ->orderBy('id', 'asc')
+                    ->limit(1),
+                'first_articleshow_slug' => ArticleShow::select('slug')
+                    ->whereColumn('article_id', 'articles.id')
+                    ->orderBy('id', 'asc')
+                    ->limit(1),
+            ])
+            ->where('article_type', 'unique')
             ->when($filterweb === 'main', function ($query) {
                 $query->whereNull('guardian_web_id');
             })
@@ -295,7 +330,14 @@ class ArticleController extends Controller
             })
             ->withCount(['articleshow as articleshow_private_count' => function ($query) {
                 $query->where('status', 'private');
-            }])
+            }, 'articleshow as publish_count' => function ($query) {
+                $query->where('status', 'publish');
+            }, 'articleshow as generate_count'])
+            ->with([
+                'articlecategory:id,category,slug',
+                'user:id,name',
+                'guardian:id,url',
+            ])
             ->when($status !== 'all' && $status, function ($query) use ($status, $filter) {
                 $query->where('schedule', $filter);
 
@@ -339,6 +381,7 @@ class ArticleController extends Controller
     {
         $data = \App\Models\ArticleShow::where('article_id', $id)
             ->where('status', 'publish')
+            ->with(['articles.guardian:id,url', 'articles.articlecategory:id,category'])
             ->get();
 
         $filename = "articles_" . $id . ".csv";

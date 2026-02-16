@@ -23,13 +23,22 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />    
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+        @php
+            $loadSwiper = request()->routeIs('home', 'business');
+            $loadFancybox = request()->routeIs('business');
+        @endphp
+
+        @if ($loadSwiper)
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+        @endif
 
         <style>
             @import url('https://fonts.googleapis.com/css2?family=DynaPuff:wdth,wght@75..100,400..700&display=swap');
         </style>
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
+        @if ($loadFancybox)
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
+        @endif
 
         <!-- Styles -->
         {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
@@ -37,9 +46,8 @@
     </head>
     <body class="font-sans antialiased"
         x-data="{ loading: true }" 
-        x-init="setTimeout(() => loading = false, 1000)"
+        x-init="if (document.readyState === 'complete') { loading = false } else { window.addEventListener('load', () => loading = false, { once: true }) }"
         @beforeunload.window="loading = true"
-        @load.window="setTimeout(() => loading = false, 1000)"
         @pageshow.window="loading = false">
         <!-- Loading overlay -->
         <div x-show="loading" 
@@ -88,8 +96,12 @@
             {{$slot}}
         </div>
     </body>
-    <script src="{{ asset('build/assets/app.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script src="{{ asset('build/assets/app.js') }}" defer></script>
+    @if ($loadFancybox)
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js" defer></script>
+    @endif
 
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    @if ($loadSwiper)
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+    @endif
 </html>

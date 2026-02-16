@@ -3,7 +3,7 @@
         <td class="px-3 py-1 text-center font-semibold">{{ $loop->iteration + ($data->currentPage() - 1) * 20 }}</td>
         <td class="px-2 sm:px-4 py-1 min-h-10 font-semibold max-w-full break-all">
             @if ($item->article_type === 'unique')
-                <a href="{{ route('business', ['slug' => $item->articleshow->first()->slug]) }}">
+                <a href="{{ route('business', ['slug' => $item->first_articleshow_slug]) }}">
                     <p class="line-clamp-2">{{ $item->judul }}</p>
                 </a>
             @else
@@ -136,7 +136,7 @@
                     </div>
                 @elseif ($item->article_type === 'unique')
                     {{-- Edit --}}
-                    <a href="{{ route('article-show.show', ['article_show' => $item->articleshow->first()->id]) }}"
+                    <a href="{{ route('article-show.show', ['article_show' => $item->first_articleshow_id]) }}"
                         class="w-5 h-5 hover:text-green-500 duration-300">
                         <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path

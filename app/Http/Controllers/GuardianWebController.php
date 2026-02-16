@@ -8,6 +8,7 @@ use App\Models\ArticleShow;
 use App\Models\GuardianWeb;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
 
@@ -31,35 +32,44 @@ class GuardianWebController extends Controller
      */
     public function index(Request $request)
     {
+        $query = GuardianWeb::select(['id', 'url', 'code'])
+            ->withCount([
+                'articles as spintaxcount' => function ($q) {
+                    $q->where('article_type', 'spintax');
+                },
+                'articles as uniquecount' => function ($q) {
+                    $q->where('article_type', 'unique');
+                },
+            ]);
+
         if ($request->search) {
-            $data = GuardianWeb::where('url', 'like', '%' . $request->search . '%')->simplePaginate(20);
-        } else {
-            $data = GuardianWeb::simplePaginate(20);
+            $query->where('url', 'like', '%' . $request->search . '%');
         }
 
-        $data->transform(function ($data) {
-            $data->spintaxcount = $data->articles->where('article_type', 'spintax')->count();
+        $data = $query->simplePaginate(20);
 
-            $data->spincount = ArticleShow::whereHas('articles', function ($query) use ($data) {
-                $query->where('guardian_web_id', $data->id)
-                      ->where('article_type', 'spintax');
-            })->count();
+        $spinCountByGuardian = ArticleShow::query()
+            ->join('articles', 'articles.id', '=', 'article_shows.article_id')
+            ->where('articles.article_type', 'spintax')
+            ->whereIn('articles.guardian_web_id', $data->pluck('id'))
+            ->groupBy('articles.guardian_web_id')
+            ->selectRaw('articles.guardian_web_id, COUNT(article_shows.id) as total')
+            ->pluck('total', 'articles.guardian_web_id');
 
-            $data->template = null;
-
-            try {
-                $response = Http::timeout(5)->get('https://'. $data->url . '/api/'. $data->code);
-                if ($response->successful()) {
-                    $data->template = $response->json()['template'];
-                } else {
-                    $data->template = null;
+        $data->transform(function ($item) use ($spinCountByGuardian) {
+            $item->spincount = (int) ($spinCountByGuardian[$item->id] ?? 0);
+            $item->template = Cache::remember("guardian_template_{$item->id}", now()->addMinutes(15), function () use ($item) {
+                try {
+                    $response = Http::connectTimeout(2)->timeout(3)->get('https://' . $item->url . '/api/' . $item->code);
+                    if ($response->successful()) {
+                        return $response->json('template');
+                    }
+                } catch (\Exception $e) {
+                    return null;
                 }
-            } catch (\Exception $e) {
-                $data->template = null;
-            }
-
-            $data->uniquecount = $data->articles->where('article_type', 'unique')->count();
-            return $data;
+                return null;
+            });
+            return $item;
         });
         
         if ($request->input('page', 1) == 1) {
@@ -67,10 +77,13 @@ class GuardianWebController extends Controller
             $manual->id = -1;
             $manual->url = 'bizlink.sites.id';
             $manual->code = null;
+            $manual->template = null;
             $manual->spintaxcount = Article::whereNull('guardian_web_id')->where('article_type', 'spintax')->count();
-            $manual->spincount = ArticleShow::whereHas('articles', function ($query) {
-                $query->whereNull('guardian_web_id')->where('article_type', 'spintax');
-            })->count();
+            $manual->spincount = ArticleShow::query()
+                ->join('articles', 'articles.id', '=', 'article_shows.article_id')
+                ->whereNull('articles.guardian_web_id')
+                ->where('articles.article_type', 'spintax')
+                ->count();
             $manual->uniquecount = Article::whereNull('guardian_web_id')->where('article_type', 'unique')->count();
     
             $data->prepend($manual);
