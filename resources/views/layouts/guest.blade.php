@@ -15,7 +15,6 @@
     <link rel="icon" href="{{ asset('/assets/images/icon.png') }}" type="image/x-icon">
 
     <!-- Scripts -->
-    <!-- Scripts -->
     @if (env('APP_DEPLOY') == true)
         <link rel="stylesheet" href="{{ asset('build/assets/app.css') }}">
     @else

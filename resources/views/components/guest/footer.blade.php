@@ -18,7 +18,7 @@
                             <p class=" font-semibold">Social Media</p>
                         </div>
                         <div class=" flex gap-2">
-                            <a href="https://www.instagram.com/jasawebsite.biz/" target="__blank">
+                            <a href="https://www.instagram.com/jasawebsite.biz/" aria-label="Instagram JasaWebsite.biz" target="__blank">
                                 <div
                                     class=" bg-white text-byolink-1 w-8 aspect-square rounded-lg overflow-hidden p-1 hover:scale-105 duration-300">
                                     <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
@@ -31,7 +31,7 @@
                                     </svg>
                                 </div>
                             </a>
-                            <a href="https://www.tiktok.com/@www.webz.biz" target="__blank">
+                            <a href="https://www.tiktok.com/@www.webz.biz" aria-label="TikTok JasaWebsite.biz" target="__blank">
                                 <div
                                     class=" bg-white text-byolink-1 w-8 aspect-square rounded-lg overflow-hidden p-1 hover:scale-105 duration-300">
                                     <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">

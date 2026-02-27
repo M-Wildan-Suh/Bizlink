@@ -2,10 +2,10 @@
 <div class="" x-data="{open : false}">
     <div class=" fixed top-0 left-0 w-full bg-white px-4 md:px-8 py-4 z-50 shadow-md shadow-black/10">
         <div class=" w-full max-w-[1080px] mx-auto flex items-center gap-10 justify-between">
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}" aria-label="Kembali ke Beranda Bizlink">
                 <div class=" h-10 flex items-center overflow-hidden">
                     {{-- <p class=" text-3xl sm:text-4xl font-bold">Bizlink</p> --}}
-                    <img src="{{asset('assets/images/logo.webp')}}" class=" max-h-full" alt="">
+                    <img src="{{ asset('assets/images/logo.webp') }}" class=" max-h-full" alt="Logo Bizlink">
                 </div>
             </a>
             <div class=" hidden md:block w-full max-w-lg">
