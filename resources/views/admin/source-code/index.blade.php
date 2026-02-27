@@ -104,7 +104,7 @@
                                         </button>
 
                                         <!-- Edit -->
-                                        <a href="{{ route('source-code.show', ['source_code' => $item->id]) }}"
+                                        <a href="{{ route('source-code.show', ['source_code' => $item->id]) }}" aria-label="Edit short code {{ $item->title }}"
                                             class=" w-4 sm:w-5 aspect-square hover:text-green-500 duration-300">
                                             <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <path

@@ -28,7 +28,7 @@
                         @if($column['key'] === 'actions')
                             <td class="px-2 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                                 <div class="flex flex-row gap-2 justify-center">
-                                    <a :href="{{$edit}}" class="text-blue-500 hover:text-blue-700">
+                                    <a :href="{{$edit}}" aria-label="Edit data" class="text-blue-500 hover:text-blue-700">
                                         <div class="w-3 aspect-square">
                                             <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M0 14.2V18h3.8l11-11.1L11 3.1 0 14.2ZM17.7 4c.4-.4.4-1 0-1.4L15.4.3c-.4-.4-1-.4-1.4 0l-1.8 1.8L16 5.9 17.7 4Z" fill="currentColor" fill-rule="evenodd" class="fill-000000"></path>

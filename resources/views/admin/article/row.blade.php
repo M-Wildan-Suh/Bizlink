@@ -34,7 +34,7 @@
                 </button>
                 @if ($item->article_type === 'spintax')
                     {{-- Article Generated --}}
-                    <a href="{{ route('article.spin', ['id' => $item->id]) }}" target="__blank">
+                    <a href="{{ route('article.spin', ['id' => $item->id]) }}" aria-label="Lihat hasil artikel {{ $item->judul }}" target="__blank">
                         <button class="w-5 h-5 hover:text-blue-500 duration-300 relative group">
                             <svg viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
                                 enable-background="new 0 0 24 24">
@@ -136,7 +136,7 @@
                     </div>
                 @elseif ($item->article_type === 'unique')
                     {{-- Edit --}}
-                    <a href="{{ route('article-show.show', ['article_show' => $item->first_articleshow_id]) }}"
+                    <a href="{{ route('article-show.show', ['article_show' => $item->first_articleshow_id]) }}" aria-label="Edit artikel {{ $item->judul }}"
                         class="w-5 h-5 hover:text-green-500 duration-300">
                         <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path

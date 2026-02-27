@@ -36,7 +36,7 @@
                                     <div class="flex gap-2 justify-center">
 
                                         <!-- Edit -->
-                                        <a :href="`{{ route('phone-number.show', '') }}/${item.id}`"
+                                        <a :href="`{{ route('phone-number.show', '') }}/${item.id}`" :aria-label="`Edit nomor ${item.no_tlp}`"
                                             class=" w-4 sm:w-5 aspect-square hover:text-green-500 duration-300">
                                             <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <path

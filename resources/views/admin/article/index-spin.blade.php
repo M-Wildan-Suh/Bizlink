@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class=" w-full md:w-auto flex flex-row gap-2 font-semibold duration-300">
-                    <a href="{{ route('article.export', ['id' => $article->id]) }}" target="_blank">
+                    <a href="{{ route('article.export', ['id' => $article->id]) }}" aria-label="Export artikel spintax" target="_blank">
                         <button
                             class=" text-nowrap w-full text-center text-sm sm:text-base md:w-auto px-2 py-2 bg-byolink-1 text-white rounded-md font-semibold border border-byolink-1 hover:border-byolink-3 hover:bg-byolink-3 duration-300">
                             <svg class=" w-5 sm:w-6" viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M18 22a2 2 0 0 0 2-2v-5l-5 4v-3H8v-2h7v-3l5 4V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12zM13 4l5 5h-5V4z"/></svg>
@@ -80,7 +80,7 @@
                         <td class="px-1 sm:px-2">
                             <div class="flex gap-1 sm:gap-2 justify-center">
                                 <!-- Edit -->
-                                <a href="{{ route('article-generated.show', ['article_generated' => $item->id]) }}"
+                                <a href="{{ route('article-generated.show', ['article_generated' => $item->id]) }}" aria-label="Edit generated artikel {{ $item->judul }}"
                                     class="w-5 h-5 hover:text-green-500 duration-300">
                                     <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M3 17.75A3.25 3.25 0 0 0 6.25 21h4.915l.356-1.423c.162-.648.497-1.24.97-1.712l5.902-5.903a3.279 3.279 0 0 1 2.607-.95V6.25A3.25 3.25 0 0 0 17.75 3H11v4.75A3.25 3.25 0 0 1 7.75 11H3v6.75ZM9.5 3.44 3.44 9.5h4.31A1.75 1.75 0 0 0 9.5 7.75V3.44Zm9.6 9.23-5.903 5.902a2.686 2.686 0 0 0-.706 1.247l-.458 1.831a1.087 1.087 0 0 0 1.319 1.318l1.83-.457a2.685 2.685 0 0 0 1.248-.707l5.902-5.902A2.286 2.286 0 0 0 19.1 12.67Z"
