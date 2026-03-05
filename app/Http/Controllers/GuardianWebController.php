@@ -8,6 +8,7 @@ use App\Models\ArticleShow;
 use App\Models\GuardianWeb;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
@@ -58,17 +59,73 @@ class GuardianWebController extends Controller
 
         $data->transform(function ($item) use ($spinCountByGuardian) {
             $item->spincount = (int) ($spinCountByGuardian[$item->id] ?? 0);
-            $item->template = Cache::remember("guardian_template_{$item->id}", now()->addMinutes(15), function () use ($item) {
-                try {
-                    $response = Http::connectTimeout(2)->timeout(3)->get('https://' . $item->url . '/api/' . $item->code);
-                    if ($response->successful()) {
-                        return $response->json('template');
-                    }
-                } catch (\Exception $e) {
-                    return null;
+            $item->template = null;
+            return $item;
+        });
+
+        $templates = [];
+        $cacheKeys = [];
+
+        foreach ($data as $item) {
+            $key = "guardian_template_{$item->id}";
+            $cacheKeys[$item->id] = $key;
+            $templates[$item->id] = null;
+        }
+
+        if (!empty($cacheKeys)) {
+            $cached = Cache::many(array_values($cacheKeys));
+
+            foreach ($cacheKeys as $id => $key) {
+                if (array_key_exists($key, $cached) && $cached[$key] !== null) {
+                    $templates[$id] = $cached[$key];
                 }
-                return null;
-            });
+            }
+        }
+
+        // Untuk load more (AJAX), pakai cache saja agar response tidak menunggu HTTP eksternal per baris.
+        if (!$request->ajax()) {
+            $missing = $data->filter(function ($item) use ($templates) {
+                return $templates[$item->id] === null;
+            })->values();
+
+            if ($missing->isNotEmpty()) {
+                $responses = Http::pool(function (Pool $pool) use ($missing) {
+                    $requests = [];
+
+                    foreach ($missing as $item) {
+                        $requests[] = $pool
+                            ->as((string) $item->id)
+                            ->connectTimeout(1)
+                            ->timeout(2)
+                            ->get('https://' . $item->url . '/api/' . $item->code);
+                    }
+
+                    return $requests;
+                });
+
+                foreach ($missing as $item) {
+                    $id = (string) $item->id;
+                    if (!isset($responses[$id])) {
+                        continue;
+                    }
+
+                    try {
+                        if ($responses[$id]->successful()) {
+                            $value = $responses[$id]->json('template');
+                            if ($value !== null) {
+                                $templates[$item->id] = $value;
+                                Cache::put($cacheKeys[$item->id], $value, now()->addMinutes(15));
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        // Biarkan null jika endpoint gagal / timeout.
+                    }
+                }
+            }
+        }
+
+        $data->transform(function ($item) use ($templates) {
+            $item->template = $templates[$item->id] ?? null;
             return $item;
         });
         

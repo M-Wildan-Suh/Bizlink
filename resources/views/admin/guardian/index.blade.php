@@ -89,17 +89,14 @@
                         })
                         .then(response => response.text())
                         .then(html => {
-                            // Tambahkan delay 1 detik sebelum tampilkan data
-                            setTimeout(() => {
-                                if (html.trim() !== '') {
-                                    document.getElementById('guardian-container').insertAdjacentHTML('beforeend', html);
-                                    page++;
-                                    loading = false;
-                                    loader.textContent = 'Loading...';
-                                } else {
-                                    loader.textContent = 'Semua data telah dimuat';
-                                }
-                            }, 500); // delay 1 detik
+                            if (html.trim() !== '') {
+                                document.getElementById('guardian-container').insertAdjacentHTML('beforeend', html);
+                                page++;
+                                loading = false;
+                                loader.textContent = 'Loading...';
+                            } else {
+                                loader.textContent = 'Semua data telah dimuat';
+                            }
                         })
                         .catch(() => {
                             loader.textContent = 'Gagal memuat data';
