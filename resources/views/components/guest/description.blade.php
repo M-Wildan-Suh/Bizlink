@@ -55,7 +55,7 @@
                 @endforeach
             </div>
         </div>
-        <p class="text-sm">
+        <p class="text-sm text-center">
             © 2025 bizlink.sites.id | Developed by
             <span class="hover:underline">
                 <a href="https://jasawebsite.biz" target="_blank">
