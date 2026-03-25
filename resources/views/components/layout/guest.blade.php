@@ -3,9 +3,13 @@
 <html class=" scroll-smooth" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+    @php
+        $robotsContent = request()->routeIs('not.found') ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    @endphp
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="robots" content="{{ $robotsContent }}">
 
     <link rel="icon" href="{{ asset('/assets/images/icon.png') }}" type="image/x-icon">
 

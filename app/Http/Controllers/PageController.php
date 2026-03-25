@@ -21,6 +21,11 @@ class PageController extends Controller
         Paginator::currentPageResolver(function () use ($request) {
             return $request->route('page', 1); // default ke halaman 1
         });
+
+        if ((int) $request->route('page', 1) === 1 && $request->routeIs('pagearticle')) {
+            return redirect()->route('home', $request->query(), 301);
+        }
+
         $data = ArticleShow::where('status', 'publish')
             ->whereHas('articles', function ($query) {
                 $query->whereNull('guardian_web_id');
@@ -45,7 +50,7 @@ class PageController extends Controller
             })
             ->take(6)->get();
 
-        $data->withPath("/artikel/page");
+        $data->withPath("/page");
 
         $hp = PhoneNumber::first()->no_tlp;
 
@@ -59,6 +64,24 @@ class PageController extends Controller
         });
 
         $page = $request->route('page') ?? null;
+
+        if ((int) $request->route('page', 1) === 1) {
+            if ($request->routeIs('pageallarticle')) {
+                return redirect()->route('allarticle', $request->query(), 301);
+            }
+
+            if ($request->routeIs('pageauthor')) {
+                return redirect()->route('author', ['username' => $username] + $request->query(), 301);
+            }
+
+            if ($request->routeIs('pagecategory')) {
+                return redirect()->route('category', ['category' => $category] + $request->query(), 301);
+            }
+
+            if ($request->routeIs('pagetag')) {
+                return redirect()->route('tag', ['tag' => $tag] + $request->query(), 301);
+            }
+        }
 
         if ($username) {
             $data = ArticleShow::whereHas('articles.user', function ($query) use ($username) {

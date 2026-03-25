@@ -26,7 +26,7 @@ class SitemapController extends Controller
         $totalArticles = (clone $baseQuery)->count('article_shows.id');
         $totalPages = ceil($totalArticles / $perPage);
 
-        for ($page = 1; $page <= $totalPages; $page++) {
+        for ($page = 2; $page <= $totalPages; $page++) {
             $sitemap->add(
                 Url::create("/artikel/page/{$page}")->setLastModificationDate(now())
             );
@@ -48,7 +48,7 @@ class SitemapController extends Controller
             $articleCount = (int) ($userArticleCounts[$model->id] ?? 0);
             $pages = ceil($articleCount / $perPage);
 
-            for ($page = 1; $page <= $pages; $page++) {
+            for ($page = 2; $page <= $pages; $page++) {
                 $sitemap->add(Url::create("{$baseUrl}/page/{$page}")->setLastModificationDate($lastMod));
             }
         }
@@ -69,7 +69,7 @@ class SitemapController extends Controller
             $articleCount = (int) ($categoryArticleCounts[$model->id] ?? 0);
             $pages = ceil($articleCount / $perPage);
 
-            for ($page = 1; $page <= $pages; $page++) {
+            for ($page = 2; $page <= $pages; $page++) {
                 $sitemap->add(Url::create("{$baseUrl}/page/{$page}")->setLastModificationDate($lastMod));
             }
         }
@@ -90,7 +90,7 @@ class SitemapController extends Controller
             $articleCount = (int) ($tagArticleCounts[$model->id] ?? 0);
             $pages = ceil($articleCount / $perPage);
 
-            for ($page = 1; $page <= $pages; $page++) {
+            for ($page = 2; $page <= $pages; $page++) {
                 $sitemap->add(Url::create("{$baseUrl}/page/{$page}")->setLastModificationDate($lastMod));
             }
         }
