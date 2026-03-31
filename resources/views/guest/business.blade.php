@@ -41,6 +41,22 @@
 
                 <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                     <div class="space-y-6">
+                        @if ($data->articleshowgallery->isNotEmpty())
+                            <div class="business-gallery-swiper swiper w-full overflow-hidden">
+                                <div class="swiper-wrapper">
+                                    @foreach ($data->articleshowgallery as $item)
+                                        <a data-fancybox="gallery"
+                                            href="{{ asset('storage/images/article/gallery/' . $item->image) }}"
+                                            class="swiper-slide block overflow-hidden rounded-md bg-neutral-100">
+                                            <img src="{{ asset('storage/images/article/gallery/' . $item->image) }}"
+                                                class="aspect-[3/4] h-full w-full object-cover"
+                                                alt="{{ $item->image_alt ?? $data->judul }}">
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="rounded-md bg-white p-5 shadow-md shadow-black/10 sm:p-8">
                             <div class="mb-6 space-y-4 border-b border-neutral-200 pb-6">
                                 <div class="flex flex-wrap gap-2">
@@ -63,37 +79,7 @@
                             <div class="article-content text-neutral-700">
                                 {!! $data->article !!}
                             </div>
-
-                            @if ($data->articles->articletag->isNotEmpty())
-                                <div class="mt-6 flex flex-wrap gap-2 border-t border-neutral-200 pt-6">
-                                    @foreach ($data->articles->articletag as $item)
-                                        <a href="{{ route('tag', ['tag' => $item->slug]) }}"
-                                            class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold lowercase text-blue-700 sm:text-sm">
-                                            #{{ $item->tag }}
-                                        </a>
-                                    @endforeach
-                                </div>
-                            @endif
                         </div>
-
-                        @if ($data->articleshowgallery->isNotEmpty())
-                            <div class="rounded-md bg-white p-5 shadow-md shadow-black/10 sm:p-8">
-                                <div class="mb-4 flex items-center gap-3">
-                                    <div class="h-8 w-1 rounded-full bg-byolink-2"></div>
-                                    <h2 class="text-xl font-bold text-neutral-900">Galeri</h2>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                    @foreach ($data->articleshowgallery as $item)
-                                        <a data-fancybox="gallery" href="{{ asset('storage/images/article/gallery/' . $item->image) }}"
-                                            class="overflow-hidden rounded-md bg-neutral-100">
-                                            <img src="{{ asset('storage/images/article/gallery/' . $item->image) }}"
-                                                class="aspect-square h-full w-full object-cover transition duration-300 hover:scale-105"
-                                                alt="{{ $item->image_alt ?? $data->judul }}">
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
 
                         @if ($data->articles->video_type != 'none')
                             <div class="rounded-md bg-white p-5 shadow-md shadow-black/10 sm:p-8">
@@ -103,6 +89,23 @@
                     </div>
 
                     <div class="space-y-6">
+                        @if ($data->articles->articletag->isNotEmpty())
+                            <div class="rounded-md bg-white p-5 shadow-md shadow-black/10 sm:p-6">
+                                <div class="mb-4 flex items-center gap-3">
+                                    <div class="h-8 w-1 rounded-full bg-byolink-2"></div>
+                                    <h2 class="text-xl font-bold text-neutral-900">Tag</h2>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach ($data->articles->articletag as $item)
+                                        <a href="{{ route('tag', ['tag' => $item->slug]) }}"
+                                            class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold lowercase text-blue-700 sm:text-sm">
+                                            #{{ $item->tag }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="rounded-md bg-white p-5 shadow-md shadow-black/10 sm:p-6">
                             <div class="mb-4 flex items-center gap-3">
                                 <div class="h-8 w-1 rounded-full bg-byolink-2"></div>
@@ -166,6 +169,28 @@
             <button class=" fixed top-24 right-8 bg-white text-black font-semibold hover:bg-byolink-1 hover:text-white duration-300 px-4 py-2 rounded-full">Edit</button>
         </a>
     @endif
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const galleryElement = document.querySelector('.business-gallery-swiper');
+
+            if (!galleryElement || typeof Swiper === 'undefined') {
+                return;
+            }
+
+            new Swiper(galleryElement, {
+                spaceBetween: 12,
+                slidesPerView: 1.15,
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2,
+                    },
+                    1024: {
+                        slidesPerView: 3,
+                    },
+                },
+            });
+        });
+    </script>
     <style>
         .article-content div,
         .article-content img,
