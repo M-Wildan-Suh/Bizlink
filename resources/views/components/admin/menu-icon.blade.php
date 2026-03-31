@@ -42,6 +42,14 @@
         </svg>
     @break
 
+    @case('cpanel')
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M4 3h16a2 2 0 0 1 2 2v3H2V5a2 2 0 0 1 2-2Zm-2 7h20v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9Zm4 2a1 1 0 0 0 0 2h5a1 1 0 0 0 0-2H6Zm0 4a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2H6Zm10-4a1 1 0 1 0 0 2h2a1 1 0 1 0 0-2h-2Z"
+                fill="currentColor" class="fill-000000"></path>
+        </svg>
+    @break
+
     @case('article')
         <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <path

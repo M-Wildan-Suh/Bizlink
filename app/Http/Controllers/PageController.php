@@ -6,7 +6,6 @@ use App\Models\ArticleCategory;
 use App\Models\ArticleShow;
 use App\Models\ArticleTag;
 use App\Models\PhoneNumber;
-use App\Models\Template;
 use App\Models\Traffic;
 use App\Models\User;
 use App\Models\WaTraffic;
@@ -16,6 +15,11 @@ use Illuminate\Pagination\Paginator;
 
 class PageController extends Controller
 {
+    protected function getDefaultPhoneNumber(): ?string
+    {
+        return PhoneNumber::query()->value('no_tlp');
+    }
+
     public function home(Request $request)
     {
         Paginator::currentPageResolver(function () use ($request) {
@@ -52,7 +56,7 @@ class PageController extends Controller
 
         $data->withPath("/page");
 
-        $hp = PhoneNumber::first()->no_tlp;
+        $hp = $this->getDefaultPhoneNumber();
 
         return view('guest.home', compact('data', 'trend', 'category', 'hp'));
     }
@@ -162,14 +166,16 @@ class PageController extends Controller
             $query->whereNull('guardian_web_id');
         })->get();
 
-        $hp = PhoneNumber::first()->no_tlp;
+        $hp = $this->getDefaultPhoneNumber();
 
         return view('guest.article', compact('data', 'title', 'page', 'category', 'hp'));
     }
 
     public function business($slug)
     {
-        $data = ArticleShow::where('slug', $slug)->first();
+        $data = ArticleShow::with(['articles.articlecategory', 'articles.articletag', 'articles.user', 'articleshowgallery', 'phoneNumber'])
+            ->where('slug', $slug)
+            ->first();
 
         if (!$data || $data->articles->guardian_web_id) {
             return redirect()->route('not.found');
@@ -201,27 +207,44 @@ class PageController extends Controller
             ]);
         }
 
-        $template = $data->template;
-
         // dd($data->articles->phoneNumber);
         if ($data->phoneNumber) {
             $data->no_tlp = $data->phoneNumber->no_tlp;
         } elseif ($data->articles->articlecategory->first()?->phonenumber) {
             $data->no_tlp = $data->articles->articlecategory->first()->phoneNumber->no_tlp;
         } else {
-            $data->no_tlp = optional(PhoneNumber::first())->no_tlp;
+            $data->no_tlp = $this->getDefaultPhoneNumber();
         }
 
         $data->date = Carbon::parse($data->created_at)->locale('id')->translatedFormat('d F Y');
-        // dd($data->articles);
+
+        $categoryIds = $data->articles->articlecategory->pluck('id');
+
+        $recommendations = ArticleShow::with(['articles.articlecategory', 'articles.user'])
+            ->where('id', '!=', $data->id)
+            ->where('status', 'publish')
+            ->whereHas('articles', function ($query) use ($categoryIds) {
+                $query->whereNull('guardian_web_id');
+            })
+            ->whereHas('articles.articlecategory', function ($query) use ($categoryIds) {
+                $query->whereIn('article_categories.id', $categoryIds);
+            })
+            ->latest()
+            ->take(6)
+            ->get();
+
+        $recommendations->transform(function ($item) {
+            $item->date = Carbon::parse($item->created_at)->locale('id')->translatedFormat('d F Y');
+            return $item;
+        });
 
         $category = ArticleCategory::whereHas('articles', function ($query) {
             $query->whereNull('guardian_web_id');
         })->get();
 
-        $hp = PhoneNumber::first()->no_tlp;
+        $hp = $this->getDefaultPhoneNumber();
 
-        return view('guest.business', compact('data', 'template', 'category', 'hp'));
+        return view('guest.business', compact('data', 'category', 'hp', 'recommendations'));
     }
 
     public function notFound()
@@ -230,7 +253,7 @@ class PageController extends Controller
             $query->whereNull('guardian_web_id');
         })->get();
 
-        $hp = PhoneNumber::first()->no_tlp;
+        $hp = $this->getDefaultPhoneNumber();
 
         return response()->view('guest.pagenotfound', compact('category', 'hp'), 404);
     }

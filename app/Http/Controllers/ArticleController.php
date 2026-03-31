@@ -24,6 +24,11 @@ use Intervention\Image\ImageManager;
 
 class ArticleController extends Controller
 {
+    protected function getDefaultTemplateId(): ?int
+    {
+        return Template::query()->orderBy('id')->value('id');
+    }
+
     public function generatearticle($id, Request $request)
     {
         set_time_limit(180);
@@ -84,7 +89,7 @@ class ArticleController extends Controller
             $newArticleShow->judul = $spinnedTitle;
             $newArticleShow->slug = Str::slug($newArticleShow->judul);
             $newArticleShow->article = $spinnedBody;
-            $newArticleShow->template_id = optional($article->template->random())->id;
+            $newArticleShow->template_id = optional($article->template->random())->id ?? $this->getDefaultTemplateId();
             $newArticleShow->banner = $article->articlebanner->isNotEmpty() ? $article->articlebanner->random()->image : null;
 
             if ($request->schedule == true) {
@@ -414,10 +419,9 @@ class ArticleController extends Controller
     public function create()
     {
         $tag = ArticleTag::all();
-        $template = Template::all();
         $category = ArticleCategory::all();
         $guardian = GuardianWeb::all();
-        return view('admin.article.create-spintax', compact('tag', 'category', 'template', 'guardian'));
+        return view('admin.article.create-spintax', compact('tag', 'category', 'guardian'));
     }
 
     /**
@@ -430,7 +434,6 @@ class ArticleController extends Controller
                 'judul' => 'required|unique:' . Article::class . '|unique:' . ArticleShow::class,
                 'category' => 'array',
                 'tag' => 'array',
-                'template_id' => 'required|array|min:1',
                 'article' => 'required',
             ]);
 
@@ -491,7 +494,10 @@ class ArticleController extends Controller
 
         $newarticle->save();
 
-        $newarticle->template()->sync($request->template_id);
+        $defaultTemplateId = $this->getDefaultTemplateId();
+        if ($defaultTemplateId) {
+            $newarticle->template()->sync([$defaultTemplateId]);
+        }
 
         $newbanner = new ArticleBanner;
 
@@ -623,9 +629,8 @@ class ArticleController extends Controller
         $tag = ArticleTag::whereNotIn('id', $tagid)->get();
         $categoryid = $article->articlecategory->pluck('id')->toArray();
         $category = ArticleCategory::whereNotIn('id', $categoryid)->get();
-        $template = Template::all();
         $guardian = GuardianWeb::all();
-        return view('admin.article.edit-spintax', compact('article', 'tag', 'category', 'template', 'guardian'));
+        return view('admin.article.edit-spintax', compact('article', 'tag', 'category', 'guardian'));
     }
 
     /**
@@ -650,7 +655,6 @@ class ArticleController extends Controller
                 ],
                 'category' => 'array',
                 'tag' => 'array',
-                'template_id' => 'required|array',
                 'article' => 'required',
             ]);
 
@@ -687,7 +691,7 @@ class ArticleController extends Controller
         $article->judul = $request->judul;
         $article->article = $request->article;
 
-        if (Auth::user()->role === 'admin') {
+        if (Auth::user()->isAdminLevel()) {
             $article->guardian_web_id = $request->guardian;
         }
 
@@ -709,7 +713,10 @@ class ArticleController extends Controller
 
         $article->save();
 
-        $article->template()->sync($request->template_id);
+        $defaultTemplateId = $this->getDefaultTemplateId();
+        if ($defaultTemplateId) {
+            $article->template()->sync([$defaultTemplateId]);
+        }
 
         if ($request->tag) {
             // Ubah tag menjadi huruf besar di awal

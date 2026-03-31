@@ -45,8 +45,13 @@
                     'route' => 'phone-number.index',
                     'active' => ['phone-number.index', 'phone-number.create', 'phone-number.show', 'phone-number.edit'],
                 ],
+                [
+                    'label' => 'cPanel Account',
+                    'route' => 'cpanel-account.index',
+                    'active' => ['cpanel-account.index', 'cpanel-account.create', 'cpanel-account.show', 'cpanel-account.edit'],
+                ],
             ],
-            'roles' => ['admin'],
+            'roles' => ['admin', 'superadmin'],
         ],
         [
             'type' => 'accordion',
@@ -55,7 +60,7 @@
             'icon' => 'guardian',
             'items' => [
             ],
-            'roles' => ['admin'],
+            'roles' => ['admin', 'superadmin'],
         ],
         [
             'type' => 'link',
@@ -63,7 +68,7 @@
             'route' => 'user.index',
             'active' => ['user.index', 'user.create', 'user.show'],
             'icon' => 'user',
-            'roles' => ['admin'],
+            'roles' => ['admin', 'superadmin'],
         ],
         [
             'type' => 'link',

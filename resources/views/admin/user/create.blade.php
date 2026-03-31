@@ -13,6 +13,19 @@
                 </div>
                 <div class="w-full">
                     <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
+                        <label for="role">Role</label>
+                        <select id="role" name="role"
+                            class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">
+                            @foreach ($roles as $role)
+                                <option value="{{ $role }}" {{ old('role', 'user') === $role ? 'selected' : '' }}>
+                                    {{ ucfirst($role) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="w-full">
+                    <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" placeholder="Input Password..." value="{{old('password')}}" required 
                             class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">

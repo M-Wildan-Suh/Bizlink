@@ -12,6 +12,19 @@
                             class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">
                     </div>
                 </div>
+                <div class="w-full">
+                    <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
+                        <label for="role">Role</label>
+                        <select id="role" name="role"
+                            class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">
+                            @foreach ($roles as $role)
+                                <option value="{{ $role }}" {{ old('role', $user->role) === $role ? 'selected' : '' }}>
+                                    {{ ucfirst($role) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
                 <p class=" font-semibold text-lg pt-2">Ganti Password (opsional)</p>
                 <div class="w-full">
                     <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">

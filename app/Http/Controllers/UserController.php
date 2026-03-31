@@ -14,6 +14,30 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    protected function getAssignableRoles(): array
+    {
+        $user = Auth::user();
+
+        if ($user?->isSuperadmin()) {
+            return [User::ROLE_SUPERADMIN, User::ROLE_ADMIN, User::ROLE_USER];
+        }
+
+        return [User::ROLE_USER];
+    }
+
+    protected function ensureCanManageUserRole(User $targetUser): void
+    {
+        $actor = Auth::user();
+
+        if ($actor?->isSuperadmin()) {
+            return;
+        }
+
+        if (in_array($targetUser->role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true)) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah akun admin atau superadmin.');
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -32,7 +56,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.user.create');
+        $roles = $this->getAssignableRoles();
+        return view('admin.user.create', compact('roles'));
     }
 
     /**
@@ -43,6 +68,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:'.User::class,
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'role' => ['required', Rule::in($this->getAssignableRoles())],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -50,6 +76,7 @@ class UserController extends Controller
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'email' => $request->email,
+            'role' => $request->role,
             'password' => Hash::make($request->password),
         ]);
 
@@ -62,11 +89,10 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::find($id);
-
-        // dd($user);
-
-        return view('admin.user.edit', compact('user'));
+        $user = User::findOrFail($id);
+        $this->ensureCanManageUserRole($user);
+        $roles = $this->getAssignableRoles();
+        return view('admin.user.edit', compact('user', 'roles'));
     }
 
     /**
@@ -82,7 +108,8 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
+        $this->ensureCanManageUserRole($user);
 
         $request->validate([
             'name' => [
@@ -99,6 +126,7 @@ class UserController extends Controller
                 'max:255',
                 Rule::unique('users')->ignore($user->id),
             ],
+            'role' => ['required', Rule::in($this->getAssignableRoles())],
             'password_old' => [
                 'nullable',
                 function ($attribute, $value, $fail) use ($user) {
@@ -113,6 +141,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->slug = Str::slug($request->name);
         $user->email = $request->email;
+        $user->role = $request->role;
 
         // Update password hanya jika diisi
         if ($request->filled('password')) {
@@ -143,6 +172,12 @@ class UserController extends Controller
         if ($user->id === $firstUserId) {
             throw ValidationException::withMessages([
                 'user' => ['Pengguna pertama(Admin) tidak dapat dihapus.'],
+            ]);
+        }
+
+        if (!Auth::user()?->isSuperadmin() && in_array($user->role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true)) {
+            throw ValidationException::withMessages([
+                'user' => ['Anda tidak dapat menghapus akun dengan role admin atau superadmin.'],
             ]);
         }
 

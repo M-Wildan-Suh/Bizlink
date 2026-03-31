@@ -8,7 +8,6 @@ use App\Models\ArticleShow;
 use App\Models\ArticleShowGallery;
 use App\Models\ArticleTag;
 use App\Models\PhoneNumber;
-use App\Models\Template;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -17,6 +16,11 @@ use Illuminate\Validation\ValidationException;
 
 class ArticleGeneratedController extends Controller
 {
+    protected function getDefaultTemplateId(): ?int
+    {
+        return \App\Models\Template::query()->orderBy('id')->value('id');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -56,10 +60,9 @@ class ArticleGeneratedController extends Controller
         $tagid = $articleShow->articles->articletag->pluck('id')->toArray();
         $tag = ArticleTag::whereNotIn('id', $tagid)->get();
         $article = Article::find($articleShow->article_id);
-        $template = Template::all();
         $first = PhoneNumber::orderBy('id')->first();
         $phonenumber = PhoneNumber::where('id', '!=', $first->id)->where('id', '!=', $articleShow->phone_number_id)->get();
-        return view('admin.article.edit-generated', compact('article', 'articleShow', 'tag', 'template', 'phonenumber'));
+        return view('admin.article.edit-generated', compact('article', 'articleShow', 'tag', 'phonenumber'));
     }
 
     /**
@@ -114,7 +117,7 @@ class ArticleGeneratedController extends Controller
         $articleShow->judul = $request->judul;
         $articleShow->slug = Str::slug($articleShow->judul);
         $articleShow->article = $request->article;
-        $articleShow->template_id = $request->template_id;
+        $articleShow->template_id = $this->getDefaultTemplateId();
         $articleShow->telephone = $request->tlp;
         $articleShow->whatsapp = $request->wa;
 

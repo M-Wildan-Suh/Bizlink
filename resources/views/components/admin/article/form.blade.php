@@ -22,10 +22,9 @@
             <form action="{{$form}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div x-data="{tab : 'content'}" class="space-y-4 sm:space-y-6">
-                    <div class=" w-full grid grid-cols-3 gap-4 text-sm sm:text-base">
+                    <div class=" w-full grid grid-cols-2 gap-4 text-sm sm:text-base">
                         <button @click="tab ='content'" type="button" :class="tab === 'content' ? 'border-byolink-1 text-byolink-1' : 'text-neutral-500 border-neutral-400 hover:text-black hover:border-black'" class=" w-full duration-300 border-b-2 pb-2 sm:pb-4 font-bold">Konten</button>
                         <button @click="tab ='image'" type="button" :class="tab === 'image' ? 'border-byolink-1 text-byolink-1' : 'text-neutral-500 border-neutral-400 hover:text-black hover:border-black'" class=" w-full duration-300 border-b-2 pb-2 sm:pb-4 font-bold">Image</button>
-                        <button @click="tab ='template'" type="button" :class="tab === 'template' ? 'border-byolink-1 text-byolink-1' : 'text-neutral-500 border-neutral-400 hover:text-black hover:border-black'" class=" w-full duration-300 border-b-2 pb-2 sm:pb-4 font-bold">Template</button>
                     </div>
                     <div x-show="tab === 'content'" class=" space-y-4 sm:space-y-6">
                         {{$slot}}
@@ -37,13 +36,6 @@
                         {{$additional ?? ''}}
                         <div class=" w-full grid grid-cols-2 gap-4">
                             <button @click="tab ='content'" type="button" class="w-full py-3 text-sm sm:text-base rounded-md bg-byolink-1 text-white font-semibold hover:bg-byolink-3 duration-300">Back</button>
-                            <button @click="tab ='template'" type="button" class="w-full py-3 text-sm sm:text-base rounded-md bg-byolink-1 text-white font-semibold hover:bg-byolink-3 duration-300">Next</button>
-                        </div>
-                    </div>
-                    <div x-show="tab === 'template'" class=" space-y-4 sm:space-y-6">
-                        {{$template ?? ''}}
-                        <div class=" w-full grid grid-cols-2 gap-4">
-                            <button @click="tab ='image'" type="button" class="w-full py-3 text-sm sm:text-base rounded-md bg-byolink-1 text-white font-semibold hover:bg-byolink-3 duration-300">Back</button>
                             <x-admin.component.submitbutton title="Save" />
                         </div>
                     </div>

@@ -23,6 +23,7 @@
                         <th class=" px-2 py-1 rounded-tl-md w-10">No</th>
                         <th class=" px-1 sm:px-2 py-1">Username</th>
                         <th class=" px-1 sm:px-2 py-1 hidden sm:table-cell">Email</th>
+                        <th class=" px-1 sm:px-2 py-1 hidden sm:table-cell">Role</th>
                         <th class=" px-1 sm:px-2 py-1 w-[90px] sm:w-[100px] rounded-tr-md">Option</th>
                     </tr>
                 </thead>
@@ -32,6 +33,7 @@
                             <td class="px-3 py-1 text-center font-semibold">{{ $loop->iteration }}</td>
                             <td class="px-2 sm:px-4 py-1 min-h-10 font-semibold text-nowrap">{{$item->name}}</td>
                             <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap hidden sm:table-cell">{{$item->email}}</td>
+                            <td class="px-2 sm:px-4 py-1 min-h-10 text-nowrap hidden sm:table-cell">{{ $item->role }}</td>
                             <td class="px-1 sm:px-2">
                                 <div class="flex gap-1 sm:gap-2 justify-center">
                                     <a href="{{ route('user.show', ['user' => $item->id]) }}" aria-label="Edit user {{ $item->name }}" class="w-5 h-5 hover:text-green-500 duration-300">
@@ -58,7 +60,7 @@
                     </tbody>
                     @empty
                     <tr>
-                        <td colspan="4" class=" bg-neutral-100 px-1 sm:px-2 py-1 text-center rounded-b-md text-neutral-600">Data tidak ditemukan</td>
+                        <td colspan="5" class=" bg-neutral-100 px-1 sm:px-2 py-1 text-center rounded-b-md text-neutral-600">Data tidak ditemukan</td>
                     </tr>
                 @endforelse
             </table>

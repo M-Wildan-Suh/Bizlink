@@ -36,6 +36,12 @@
             'active' => ['phone-number.index', 'phone-number.create', 'phone-number.show', 'phone-number.edit'],
             'icon' => 'phone',
         ],
+        [
+            'label' => 'cPanel',
+            'route' => 'cpanel-account.index',
+            'active' => ['cpanel-account.index', 'cpanel-account.create', 'cpanel-account.show', 'cpanel-account.edit'],
+            'icon' => 'cpanel',
+        ],
     ];
 
     $mobileMenus = [
@@ -51,7 +57,7 @@
             'route' => 'user.index',
             'active' => ['user.index', 'article.create', 'user.show'],
             'icon' => 'user',
-            'roles' => ['admin'],
+            'roles' => ['admin', 'superadmin'],
         ],
         [
             'label' => 'Traffic',
@@ -63,7 +69,7 @@
 
     $mobileMenus = collect($mobileMenus)
         ->filter(fn($menu) => !isset($menu['roles']) || in_array(Auth::user()->role, $menu['roles'], true))
-        ->filter(fn($menu) => !in_array($menu['route'], ['guardian.index', 'article.index', 'template.index', 'phone-number.index'], true) || Auth::user()->role === 'admin')
+        ->filter(fn($menu) => !in_array($menu['route'], ['guardian.index', 'article.index', 'template.index', 'phone-number.index', 'cpanel-account.index'], true) || Auth::user()->isAdminLevel())
         ->values();
 @endphp
 <div x-data="{ isOpen: false }" class=" flex sm:hidden">

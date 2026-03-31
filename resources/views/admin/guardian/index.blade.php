@@ -31,6 +31,7 @@
                     <tr class="h-10 bg-byolink-1 text-white divide-x-2 divide-white">
                         <th class=" px-2 py-1 rounded-tl-md w-10">No</th>
                         <th class=" px-1 sm:px-2 py-1">Url</th>
+                        <th class=" px-1 sm:px-2 py-1 hidden lg:table-cell">cPanel</th>
                         <th class=" px-1 sm:px-2 py-1 min-w-10 hidden sm:table-cell">Template</th>
                         <th class=" px-1 sm:px-2 py-1 min-w-10 hidden sm:table-cell">
                             <div class=" flex justify-center">
@@ -49,7 +50,7 @@
                     @include('admin.guardian.row')
                 </tbody>
                 <tr>
-                    <td id="loader" colspan="6" class=" text-center text-neutral-600 h-10">
+                    <td id="loader" colspan="7" class=" text-center text-neutral-600 h-10">
                         {{$data->count() > 20 ? 'Loading...' : 'Semua data telah dimuat'}}
                     </td>
                 </tr>

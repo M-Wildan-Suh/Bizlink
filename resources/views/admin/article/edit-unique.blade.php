@@ -36,7 +36,7 @@
     </div>
     <x-admin.component.nochoseinput title="Phone Number (optional)" :phone="$phonenumber" :value="old('no_tlp', $articleShow->phoneNumber->no_tlp ?? null)" name="no_tlp" />
 
-    @if (Auth::user()->role === 'admin')    
+    @if (Auth::user()->isAdminLevel())    
         <div class="flex flex-col gap-2">
             <label class="font-medium text-sm sm:text-base">Choose Guardian Web (optional)</label>
             <select class="guardianweb" name="guardian" multiple="multiple">
@@ -203,22 +203,6 @@
         
         <x-admin.component.linkinput title="Video (Link Youtube/Tiktok) (Optional)" placeholder="Input link..." value="{{ old('link', ($articleShow->articles->video_type === 'youtube') ? $articleShow->articles->youtube : (($articleShow->articles->video_type === 'tiktok') ? $articleShow->articles->tiktok : '')) }}" name="link" link="Url" />
     </x-slot:additional>
-    <x-slot:template>
-        <div class=" space-y-2">
-            <label for="template" class=" text-sm sm:text-base font-semibold">Template</label>
-            <div class=" w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                @foreach ($template as $item)
-                    <label class="w-full rounded-md bg-white aspect-[2/3] overflow-hidden relative">
-                        <input type="radio" name="template_id" value="{{$item->id}}" class="hidden peer" {{ old('template_id', $articleShow->template_id) == $item->id ? 'checked' : '' }}>
-                        <img src="{{asset('/storage/images/template/'.$item->image)}}" class=" w-full h-full object-cover object-top" alt="">
-                        <div class=" absolute inset-0 peer-checked:bg-black/50 duration-300">
-                        </div>
-                    </label>
-                @endforeach
-            </div>
-        </div>
-    </x-slot:template>
-
     @include('components.admin.component.success')
     @include('components.admin.component.validationerror')
 </x-admin.article.form>

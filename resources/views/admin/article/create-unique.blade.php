@@ -164,21 +164,5 @@
         </script>
         <x-admin.component.linkinput title="Video (Link Youtube/Tiktok)" placeholder="Masukkan link..." :value="old('link')" name="link" link="Url" />
     </x-slot:additional>
-    <x-slot:template>
-        <div class=" space-y-2">
-            <label for="template" class=" text-sm sm:text-base font-semibold">Template</label>
-            <div class=" w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                @foreach ($template as $item)
-                    <label class="w-full rounded-md bg-white aspect-[2/3] overflow-hidden relative">
-                        <input type="radio" name="template_id" value="{{$item->id}}" class="hidden peer" {{ $loop->first || $item->id == old('template_id') ? 'checked' : '' }}>
-                        <img src="{{asset('/storage/images/template/'.$item->image)}}" class=" w-full h-full object-cover object-top" alt="">
-                        <div class=" absolute inset-0 peer-checked:bg-black/50 duration-300">
-                        </div>
-                    </label>
-                @endforeach
-            </div>
-        </div>
-    </x-slot:template>
-
     @include('components.admin.component.validationerror')
 </x-admin.article.form>

@@ -25,6 +25,11 @@ use Intervention\Image\ImageManager;
 
 class ArticleShowController extends Controller
 {
+    protected function getDefaultTemplateId(): ?int
+    {
+        return Template::query()->orderBy('id')->value('id');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -46,11 +51,10 @@ class ArticleShowController extends Controller
     {
         $tag = ArticleTag::all();
         $category = ArticleCategory::all();
-        $template = Template::all();
         $first = PhoneNumber::orderBy('id')->first();
         $phonenumber = PhoneNumber::where('id', '!=', $first->id)->get();
         $guardian = GuardianWeb::all();
-        return view('admin.article.create-unique', compact('template', 'tag', 'phonenumber', 'category', 'guardian'));
+        return view('admin.article.create-unique', compact('tag', 'phonenumber', 'category', 'guardian'));
     }
 
     /**
@@ -130,7 +134,10 @@ class ArticleShowController extends Controller
     
             $newarticle->save();
     
-            $newarticle->template()->sync([$request->template_id]);
+            $defaultTemplateId = $this->getDefaultTemplateId();
+            if ($defaultTemplateId) {
+                $newarticle->template()->sync([$defaultTemplateId]);
+            }
             
             $newbanner = null;
     
@@ -264,7 +271,7 @@ class ArticleShowController extends Controller
             $newarticleshow->judul = $newarticle->judul;
             $newarticleshow->slug = Str::slug($newarticleshow->judul);
             $newarticleshow->article = $newarticle->article;
-            $newarticleshow->template_id = $request->template_id;
+            $newarticleshow->template_id = $defaultTemplateId;
             $newarticleshow->status = $request->status;
             $newarticleshow->telephone = $request->tlp;
             $newarticleshow->whatsapp = $request->wa;
@@ -302,11 +309,10 @@ class ArticleShowController extends Controller
         $tag = ArticleTag::whereNotIn('id', $tagid)->get();
         $categoryid = $articleShow->articles->articlecategory->pluck('id')->toArray();
         $category = ArticleCategory::whereNotIn('id', $categoryid)->get();
-        $template = Template::all();
         $first = PhoneNumber::orderBy('id')->first();
         $phonenumber = PhoneNumber::where('id', '!=', $first->id)->where('id', '!=', $articleShow->phone_number_id)->get();
         $guardian = GuardianWeb::all();
-        return view('admin.article.edit-unique', compact('articleShow', 'tag', 'template', 'phonenumber', 'category', 'guardian'));
+        return view('admin.article.edit-unique', compact('articleShow', 'tag', 'phonenumber', 'category', 'guardian'));
     }
 
     /**
@@ -370,7 +376,7 @@ class ArticleShowController extends Controller
         $newarticle->judul = $request->judul;
         $newarticle->article = $request->article;
         
-        if (Auth::user()->role === 'admin') {
+        if (Auth::user()->isAdminLevel()) {
             $newarticle->guardian_web_id = $request->guardian;
         }
 
@@ -398,7 +404,10 @@ class ArticleShowController extends Controller
 
         $newarticle->save();
 
-        $newarticle->template()->sync([$request->template_id]);
+        $defaultTemplateId = $this->getDefaultTemplateId();
+        if ($defaultTemplateId) {
+            $newarticle->template()->sync([$defaultTemplateId]);
+        }
         
         $banner = null;
 
@@ -503,7 +512,7 @@ class ArticleShowController extends Controller
         $articleShow->judul = $newarticle->judul;
         $articleShow->slug = Str::slug($articleShow->judul);
         $articleShow->article = $newarticle->article;
-        $articleShow->template_id = $request->template_id;
+        $articleShow->template_id = $defaultTemplateId;
         $articleShow->telephone = $request->tlp;
         $articleShow->whatsapp = $request->wa;
         

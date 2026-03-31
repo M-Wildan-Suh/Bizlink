@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Models\ArticleShow;
+use App\Models\CpanelAccount;
 use App\Models\GuardianWeb;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -33,7 +34,8 @@ class GuardianWebController extends Controller
      */
     public function index(Request $request)
     {
-        $query = GuardianWeb::select(['id', 'url', 'code'])
+        $query = GuardianWeb::select(['id', 'url', 'code', 'use_cpanel', 'cpanel_account_id', 'cpanel_domain_created_at'])
+            ->with(['cpanelAccount:id,name'])
             ->withCount([
                 'articles as spintaxcount' => function ($q) {
                     $q->where('article_type', 'spintax');
@@ -41,7 +43,8 @@ class GuardianWebController extends Controller
                 'articles as uniquecount' => function ($q) {
                     $q->where('article_type', 'unique');
                 },
-            ]);
+            ])
+            ->latest('id');
 
         if ($request->search) {
             $query->where('url', 'like', '%' . $request->search . '%');
@@ -135,6 +138,9 @@ class GuardianWebController extends Controller
             $manual->url = 'bizlink.sites.id';
             $manual->code = null;
             $manual->template = null;
+            $manual->use_cpanel = false;
+            $manual->cpanel_domain_created_at = null;
+            $manual->cpanelAccount = null;
             $manual->spintaxcount = Article::whereNull('guardian_web_id')->where('article_type', 'spintax')->count();
             $manual->spincount = ArticleShow::query()
                 ->join('articles', 'articles.id', '=', 'article_shows.article_id')
@@ -159,8 +165,9 @@ class GuardianWebController extends Controller
     public function create()
     {
         $article = Article::whereNull('guardian_web_id')->get();
+        $cpanelAccounts = CpanelAccount::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.guardian.create', compact('article'));
+        return view('admin.guardian.create', compact('article', 'cpanelAccounts'));
     }
 
     /**
@@ -171,20 +178,26 @@ class GuardianWebController extends Controller
         $validated = $request->validate([
             'url' => 'required|max:255|unique:'.GuardianWeb::class,
             'article' => 'array',
+            'use_cpanel' => 'nullable|boolean',
+            'cpanel_account_id' => 'nullable|required_if:use_cpanel,1|exists:cpanel_accounts,id',
+            'cpanel_domain_type' => 'nullable|required_if:use_cpanel,1|in:subdomain,addon_domain',
         ]);
 
+        $useCpanel = $request->boolean('use_cpanel');
         $newguardian = new GuardianWeb;
 
         $newguardian->url = $request->url;
         $newguardian->code = strtoupper(Str::random(10));
+        $newguardian->use_cpanel = $useCpanel;
+        $newguardian->cpanel_account_id = $useCpanel ? $request->cpanel_account_id : null;
+        $newguardian->cpanel_domain_type = $useCpanel ? $request->cpanel_domain_type : null;
+        $newguardian->cpanel_domain_created_at = null;
 
         $newguardian->save();
 
         if ($request->has('article') && is_array($request->article)) {
-            $newguardian->articles()->attach($request->article);
+            Article::whereIn('id', $request->article)->update(['guardian_web_id' => $newguardian->id]);
         }
-
-
 
         return redirect()->route('guardian.index');
     }
@@ -194,11 +207,15 @@ class GuardianWebController extends Controller
      */
     public function show($id, GuardianWeb $guardianWeb)
     {
-    $article = Article::whereNull('guardian_web_id')->orWhere('guardian_web_id', $id)->get();
+        $article = Article::whereNull('guardian_web_id')->orWhere('guardian_web_id', $id)->get();
+        $cpanelAccounts = CpanelAccount::where('is_active', true)
+            ->orWhere('id', optional(GuardianWeb::find($id))->cpanel_account_id)
+            ->orderBy('name')
+            ->get();
 
-        $guardianWeb = GuardianWeb::find($id);
+        $guardianWeb = GuardianWeb::with('articles')->find($id);
 
-        return view('admin.guardian.edit', compact('guardianWeb', 'article'));
+        return view('admin.guardian.edit', compact('guardianWeb', 'article', 'cpanelAccounts'));
     }
 
     /**
@@ -217,24 +234,38 @@ class GuardianWebController extends Controller
         $validated = $request->validate([
             'url' => 'required|max:255|unique:' . GuardianWeb::class . ',url,' . $id,
             'article' => 'array',
+            'use_cpanel' => 'nullable|boolean',
+            'cpanel_account_id' => 'nullable|required_if:use_cpanel,1|exists:cpanel_accounts,id',
+            'cpanel_domain_type' => 'nullable|required_if:use_cpanel,1|in:subdomain,addon_domain',
         ]);
 
         $guardianWeb = GuardianWeb::find($id);
+        $useCpanel = $request->boolean('use_cpanel');
+        $domainConfigurationChanged =
+            $guardianWeb->url !== $request->url ||
+            (string) $guardianWeb->cpanel_account_id !== (string) $request->cpanel_account_id ||
+            (string) $guardianWeb->cpanel_domain_type !== (string) $request->cpanel_domain_type;
         
         $guardianWeb->url = $request->url;
+        $guardianWeb->use_cpanel = $useCpanel;
+        $guardianWeb->cpanel_account_id = $useCpanel ? $request->cpanel_account_id : null;
+        $guardianWeb->cpanel_domain_type = $useCpanel ? $request->cpanel_domain_type : null;
+        $guardianWeb->cpanel_domain_created_at = $useCpanel
+            ? ($domainConfigurationChanged ? null : $guardianWeb->cpanel_domain_created_at)
+            : null;
 
         $guardianWeb->save();
 
         $old = Article::where('guardian_web_id', $guardianWeb->id)->get();
         foreach ($old as $item) {
-            $item->guardian_Web_id = null;
+            $item->guardian_web_id = null;
             $item->save();
         }
 
         if ($request->article) {
             $articles = Article::whereIn('id', $request->article)->get();
             foreach ($articles as $item) {
-                $item->guardian_Web_id = $guardianWeb->id;
+                $item->guardian_web_id = $guardianWeb->id;
                 $item->save();
             }
         }

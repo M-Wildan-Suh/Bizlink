@@ -15,6 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('url')->unique();
+
+            $table->boolean('use_cpanel')->default(false);
+            $table->foreignId('cpanel_account_id')
+                ->nullable()
+                ->constrained('cpanel_accounts')
+                ->nullOnDelete();
+            $table->string('cpanel_domain_type')->nullable();
+            $table->timestamp('cpanel_domain_created_at')->nullable();
+            
             $table->timestamps();
         });
     }

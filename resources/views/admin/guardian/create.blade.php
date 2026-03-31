@@ -2,8 +2,44 @@
     <div class="sm:pl-12 sm:pr-12 lg:pr-32 duration-300 pt-8 pb-20 sm:pb-8 px-4 space-y-4">
         <form action="{{route('guardian.store')}}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20 flex flex-col gap-6">
+            <div x-data="{ useCpanel: {{ (string) old('use_cpanel', '0') === '1' ? 'true' : 'false' }} }"
+                class="w-full p-4 sm:p-8 bg-white rounded-md shadow-md shadow-black/20 flex flex-col gap-6">
                 <x-admin.component.linkinput title="Guardian Web Url" placeholder="Input link..." :value="old('url')" name="url" link="Url" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <label class="flex items-center gap-3 text-sm sm:text-base font-medium">
+                        <input type="hidden" name="use_cpanel" value="0">
+                        <input type="checkbox" name="use_cpanel" value="1" x-model="useCpanel"
+                            class="rounded border-byolink-1 text-byolink-1 focus:ring-byolink-3">
+                        Hubungkan ke cPanel
+                    </label>
+                </div>
+
+                <div x-show="useCpanel" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="w-full">
+                        <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
+                            <label for="cpanel_account_id">Akun cPanel</label>
+                            <select id="cpanel_account_id" name="cpanel_account_id"
+                                class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">
+                                <option value="">Pilih akun cPanel</option>
+                                @foreach($cpanelAccounts as $cpanelAccount)
+                                    <option value="{{ $cpanelAccount->id }}" {{ (string) old('cpanel_account_id') === (string) $cpanelAccount->id ? 'selected' : '' }}>
+                                        {{ $cpanelAccount->name }} - {{ $cpanelAccount->host }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
+                            <label for="cpanel_domain_type">Jenis Domain cPanel</label>
+                            <select id="cpanel_domain_type" name="cpanel_domain_type"
+                                class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">
+                                <option value="addon_domain" {{ old('cpanel_domain_type', 'addon_domain') === 'addon_domain' ? 'selected' : '' }}>Addon Domain</option>
+                                <option value="subdomain" {{ old('cpanel_domain_type') === 'subdomain' ? 'selected' : '' }}>Subdomain</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class=" w-full space-y-6">
                     <div class="flex flex-col gap-2">
                         <label class="font-medium text-sm sm:text-base">Chose Article</label>

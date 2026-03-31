@@ -7,6 +7,8 @@ use App\Http\Controllers\ArticleGalleryController;
 use App\Http\Controllers\ArticleGeneratedController;
 use App\Http\Controllers\ArticleShowController;
 use App\Http\Controllers\ArticleShowGalleryController;
+use App\Http\Controllers\CpanelAccountController;
+use App\Http\Controllers\GuardianCpanelController;
 use App\Http\Controllers\GuardianWebController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PhoneNumberController;
@@ -78,6 +80,16 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('/admin/guardian', GuardianWebController::class);
         Route::get('/admin/guardian-export', [GuardianWebController::class, 'export'])->name('guardian.export');
+        Route::post('/admin/guardian/{guardian}/cpanel/create-domain', [GuardianCpanelController::class, 'createDomain'])->name('guardian.cpanel.create-domain');
+        Route::delete('/admin/guardian/{guardian}/cpanel/delete-domain', [GuardianCpanelController::class, 'deleteDomain'])->name('guardian.cpanel.delete-domain');
+        Route::get('/admin/guardian/{guardian}/cpanel/files', [GuardianCpanelController::class, 'files'])->name('guardian.cpanel.files');
+        Route::post('/admin/guardian/{guardian}/cpanel/files', [GuardianCpanelController::class, 'uploadFile'])->name('guardian.cpanel.files.upload');
+        Route::post('/admin/guardian/{guardian}/cpanel/files/folder', [GuardianCpanelController::class, 'createDirectory'])->name('guardian.cpanel.files.folder');
+        Route::post('/admin/guardian/{guardian}/cpanel/files/file', [GuardianCpanelController::class, 'createFile'])->name('guardian.cpanel.files.file');
+        Route::put('/admin/guardian/{guardian}/cpanel/files/content', [GuardianCpanelController::class, 'saveFile'])->name('guardian.cpanel.files.save');
+        Route::patch('/admin/guardian/{guardian}/cpanel/files/rename', [GuardianCpanelController::class, 'renamePath'])->name('guardian.cpanel.files.rename');
+        Route::delete('/admin/guardian/{guardian}/cpanel/files', [GuardianCpanelController::class, 'deleteFile'])->name('guardian.cpanel.files.delete');
+        Route::resource('/admin/cpanel-account', CpanelAccountController::class);
     });
 
     Route::resource('/admin/phone-number', PhoneNumberController::class);
