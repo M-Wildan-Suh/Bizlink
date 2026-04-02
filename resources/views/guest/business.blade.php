@@ -89,23 +89,6 @@
                     </div>
 
                     <div class="space-y-6">
-                        @if ($data->articles->articletag->isNotEmpty())
-                            <div class="rounded-md bg-white p-5 shadow-md shadow-black/10 sm:p-6">
-                                <div class="mb-4 flex items-center gap-3">
-                                    <div class="h-8 w-1 rounded-full bg-byolink-2"></div>
-                                    <h2 class="text-xl font-bold text-neutral-900">Tag</h2>
-                                </div>
-                                <div class="flex flex-wrap gap-2">
-                                    @foreach ($data->articles->articletag as $item)
-                                        <a href="{{ route('tag', ['tag' => $item->slug]) }}"
-                                            class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold lowercase text-blue-700 sm:text-sm">
-                                            #{{ $item->tag }}
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-
                         <div class="rounded-md bg-white p-5 shadow-md shadow-black/10 sm:p-6">
                             <div class="mb-4 flex items-center gap-3">
                                 <div class="h-8 w-1 rounded-full bg-byolink-2"></div>
@@ -137,6 +120,17 @@
                                 @endforelse
                             </div>
                         </div>
+                        
+                        @if ($data->articles->articletag->isNotEmpty())
+                            <div class="flex flex-wrap gap-2">
+                                @foreach ($data->articles->articletag as $item)
+                                    <a href="{{ route('tag', ['tag' => $item->slug]) }}"
+                                        class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold lowercase text-blue-700 sm:text-sm">
+                                        #{{ $item->tag }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
