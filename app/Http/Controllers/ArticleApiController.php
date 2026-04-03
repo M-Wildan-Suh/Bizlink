@@ -278,10 +278,36 @@ class ArticleApiController extends Controller
 
     public function whatsapp(Request $request)
     {
-        $phone   = $request->phone; // pakai format internasional tanpa +
-        $message = 'Halo saya dapat info dari '. $request->url;
+        $id = $request->id;
+        $article = ArticleShow::find($id);
 
-        $url = 'https://wa.me/' . $request->phone. '?text=' . urlencode($message);
+        if ($article) {
+            $nowHour = \Carbon\Carbon::now()->format('Y-m-d H:00:00');
+
+            // Cari traffic dalam jam yang sama
+            $watraffic = \App\Models\WaTraffic::where('article_show_id', $article->id)
+                ->whereBetween('created_at', [
+                    \Carbon\Carbon::parse($nowHour),
+                    \Carbon\Carbon::parse($nowHour)->addHour()
+                ])
+                ->first();
+
+            if ($watraffic) {
+                // Sudah ada record di jam ini → tambah access
+                $watraffic->increment('access');
+            } else {
+                // Belum ada record → buat baru
+                \App\Models\WaTraffic::create([
+                    'article_show_id' => $article->id,
+                    'access' => 1,
+                ]);
+            }
+        }
+
+        $phone   = $request->phone; // pakai format internasional tanpa +
+        $message = 'Halo saya dapat info dari ' . $request->url;
+
+        $url = 'https://wa.me/' . $phone . '?text=' . urlencode($message);
 
         return redirect()->away($url);
     }
