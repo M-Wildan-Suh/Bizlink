@@ -24,7 +24,7 @@ class TrafficController extends Controller
 
             $start = Carbon::parse($request->query('start', now()->subHours(23)))->startOfHour();
 
-            $end = Carbon::parse($request->query('end', now()))->startOfHour();
+            $end = Carbon::parse($request->query('end', now()));
 
             $traffic = $this->trafficDay($start, $end);
         } elseif ($mode === 'week') {
@@ -46,6 +46,7 @@ class TrafficController extends Controller
             $traffic = [
                 'labels'     => [],
                 'values'     => [],
+                'waValues'   => [],
                 'articleIds' => [],
             ];
         }
@@ -126,39 +127,58 @@ class TrafficController extends Controller
         $totalaccess = Traffic::whereBetween('created_at', [$start, $end])
             ->sum('access');
 
-        return view('admin.traffic.index', compact('traffic', 'mode', 'list', 'guardians', 'articles', 'categories', 'totalaccess', 'start', 'end'));
+        $totalwaaccess = \App\Models\WaTraffic::whereBetween('created_at', [$start, $end])
+            ->sum('access');
+
+        return view('admin.traffic.index', compact('traffic', 'mode', 'list', 'guardians', 'articles', 'categories', 'totalaccess', 'totalwaaccess', 'start', 'end'));
     }
 
     private function trafficDay($start, $end)
     {
         // 1️⃣ Ambil traffic per jam (SUM access)
-        $traffic = Traffic::selectRaw('HOUR(created_at) as hour, SUM(access) as total')
-            ->whereBetween('created_at', [$start, $end])
-            ->groupBy('hour')
-            ->pluck('total', 'hour');
+        $rawRows = Traffic::whereBetween('created_at', [$start, $end])
+            ->select(['created_at', 'access', 'article_show_id', 'article_id', 'guardian_web_id'])
+            ->get();
 
-        // 2️⃣ Ambil semua article_show_id sekali
-        $ids = Traffic::whereBetween('created_at', [$start, $end])
-            ->get(['article_show_id', 'article_id', 'guardian_web_id']);
+        $waRows = \App\Models\WaTraffic::whereBetween('created_at', [$start, $end])
+            ->select(['created_at', 'access'])
+            ->get();
 
-        $articleShowIds = $ids->pluck('article_show_id')->unique()->values()->toArray();
-        $articleIds = $ids->pluck('article_id')->unique()->values()->toArray();
-        $guardianIds = $ids->pluck('guardian_web_id')->unique()->values()->toArray();
+        $bucketValues = [];
+        foreach ($rawRows as $row) {
+            $time = Carbon::parse($row->created_at);
+            $key = $time->format('Y-m-d H:00:00');
+            $bucketValues[$key] = ($bucketValues[$key] ?? 0) + (int) $row->access;
+        }
+
+        $waBucketValues = [];
+        foreach ($waRows as $row) {
+            $time = Carbon::parse($row->created_at);
+            $key = $time->format('Y-m-d H:00:00');
+            $waBucketValues[$key] = ($waBucketValues[$key] ?? 0) + (int) $row->access;
+        }
+
+        $articleShowIds = $rawRows->pluck('article_show_id')->unique()->values()->toArray();
+        $articleIds = $rawRows->pluck('article_id')->unique()->values()->toArray();
+        $guardianIds = $rawRows->pluck('guardian_web_id')->unique()->values()->toArray();
 
 
         $labels = [];
         $values = [];
+        $waValues = [];
 
         for ($time = $start->copy(); $time <= $end; $time->addHour()) {
-            $hour = (int) $time->format('H');
+            $key = $time->format('Y-m-d H:00:00');
 
             $labels[] = $time->format('H:00');
-            $values[] = $traffic[$hour] ?? 0;
+            $values[] = $bucketValues[$key] ?? 0;
+            $waValues[] = $waBucketValues[$key] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
+            'waValues' => $waValues,
             'articleIds' => $articleIds,
             'articleShowIds' => $articleShowIds,
             'guardianWebIds' => $guardianIds,
@@ -175,6 +195,11 @@ class TrafficController extends Controller
             ->groupBy('date')
             ->pluck('total', 'date');
 
+        $waTraffic = \App\Models\WaTraffic::selectRaw('DATE(created_at) as date, SUM(access) as total')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
         // 2️⃣ Ambil semua article_show_id sekali
         $ids = Traffic::whereBetween('created_at', [$start, $end])
             ->get(['article_show_id', 'article_id', 'guardian_web_id']);
@@ -185,17 +210,20 @@ class TrafficController extends Controller
 
         $labels = [];
         $values = [];
+        $waValues = [];
 
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
             $dateKey = $day->toDateString();
 
             $labels[] = $day->format('D d');
             $values[] = $traffic[$dateKey] ?? 0;
+            $waValues[] = $waTraffic[$dateKey] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
+            'waValues' => $waValues,
             'articleIds' => $articleIds,
             'articleShowIds' => $articleShowIds,
             'guardianWebIds' => $guardianIds,
@@ -212,6 +240,11 @@ class TrafficController extends Controller
             ->groupBy('date')
             ->pluck('total', 'date');
 
+        $waTraffic = \App\Models\WaTraffic::selectRaw('DATE(created_at) as date, SUM(access) as total')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
         // 2️⃣ Ambil semua article_show_id sekali
         $ids = Traffic::whereBetween('created_at', [$start, $end])
             ->get(['article_show_id', 'article_id', 'guardian_web_id']);
@@ -222,17 +255,20 @@ class TrafficController extends Controller
 
         $labels = [];
         $values = [];
+        $waValues = [];
 
         for ($day = $start->copy(); $day <= $end; $day->addDay()) {
             $dateKey = $day->toDateString();
 
             $labels[] = $day->format('d M');
             $values[] = $traffic[$dateKey] ?? 0;
+            $waValues[] = $waTraffic[$dateKey] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
+            'waValues' => $waValues,
             'articleIds' => $articleIds,
             'articleShowIds' => $articleShowIds,
             'guardianWebIds' => $guardianIds,

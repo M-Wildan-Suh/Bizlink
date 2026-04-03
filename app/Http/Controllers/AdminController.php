@@ -104,7 +104,8 @@ class AdminController extends Controller
         } else {
             $traffic = [
                 'labels' => [],
-                'values' => []
+                'values' => [],
+                'waValues' => [],
             ];
         }
 
@@ -127,7 +128,7 @@ class AdminController extends Controller
     private function trafficDay()
     {
         $start = now()->subHours(23)->startOfHour();
-        $end   = now()->startOfHour();
+        $end   = now();
         return $this->buildTrafficSeries($start, $end, 'hour', 'H:00');
     }
 
@@ -149,10 +150,15 @@ class AdminController extends Controller
     {
         $labels = [];
         $values = [];
+        $waValues = [];
         $articleIds = [];
 
         $rawRows = Traffic::whereBetween('created_at', [$start, $end])
             ->select(['created_at', 'access', 'article_show_id'])
+            ->get();
+
+        $waRows = \App\Models\WaTraffic::whereBetween('created_at', [$start, $end])
+            ->select(['created_at', 'access'])
             ->get();
 
         $bucketValues = [];
@@ -166,17 +172,29 @@ class AdminController extends Controller
             $articleIds[] = $row->article_show_id;
         }
 
+        $waBucketValues = [];
+        foreach ($waRows as $row) {
+            $time = Carbon::parse($row->created_at);
+            $bucketKey = $step === 'hour'
+                ? $time->format('Y-m-d H:00:00')
+                : $time->toDateString();
+
+            $waBucketValues[$bucketKey] = ($waBucketValues[$bucketKey] ?? 0) + (int) $row->access;
+        }
+
         for ($cursor = $start->copy(); $cursor <= $end; $cursor = $step === 'hour' ? $cursor->addHour() : $cursor->addDay()) {
             $labels[] = $cursor->format($labelFormat);
             $key = $step === 'hour'
                 ? $cursor->format('Y-m-d H:00:00')
                 : $cursor->toDateString();
             $values[] = (int) ($bucketValues[$key] ?? 0);
+            $waValues[] = (int) ($waBucketValues[$key] ?? 0);
         }
 
         return [
             'labels' => $labels,
             'values' => $values,
+            'waValues' => $waValues,
             'articleIds' => $articleIds,
         ];
     }
