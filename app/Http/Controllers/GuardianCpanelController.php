@@ -23,6 +23,14 @@ class GuardianCpanelController extends Controller
 
             return redirect()->back()->with('success', 'Domain berhasil dibuat di cPanel.');
         } catch (\Throwable $e) {
+            if ($this->shouldTreatExistingDomainAsSuccess($e)) {
+                $guardian->forceFill([
+                    'cpanel_domain_created_at' => now(),
+                ])->save();
+
+                return redirect()->back()->with('success', 'Domain sudah ada di cPanel dan berhasil disinkronkan.');
+            }
+
             return redirect()->back()->withErrors(['cpanel' => $e->getMessage()]);
         }
     }
@@ -216,5 +224,31 @@ class GuardianCpanelController extends Controller
         }
 
         return $breadcrumbs;
+    }
+
+    private function shouldTreatExistingDomainAsSuccess(\Throwable $e): bool
+    {
+        $message = strtolower($e->getMessage());
+
+        $existingDomainIndicators = [
+            'already exists',
+            'domain already exists',
+            'a DNS entry for',
+            'is already configured',
+            'is already parked',
+            'is owned by another user',
+            'already associated with another account',
+            'already pointed to an ip address',
+            'the domain “',
+            'the domain "',
+        ];
+
+        foreach ($existingDomainIndicators as $indicator) {
+            if (str_contains($message, strtolower($indicator))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
