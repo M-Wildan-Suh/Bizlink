@@ -127,14 +127,6 @@ class UserController extends Controller
                 Rule::unique('users')->ignore($user->id),
             ],
             'role' => ['required', Rule::in($this->getAssignableRoles())],
-            'password_old' => [
-                'nullable',
-                function ($attribute, $value, $fail) use ($user) {
-                    if ($value && !Hash::check($value, $user->password)) {
-                        $fail('Password lama tidak sesuai.');
-                    }
-                },
-            ],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 

@@ -5,6 +5,7 @@
             'route' => 'guardian.index',
             'active' => ['guardian.index', 'guardian.create', 'guardian.show', 'guardian.edit'],
             'icon' => 'guardian',
+            'roles' => ['admin', 'superadmin'],
         ],
         [
             'label' => 'Article',
@@ -23,24 +24,28 @@
                 'article.unique.filter',
             ],
             'icon' => 'article',
+            'roles' => ['user', 'admin', 'superadmin'],
         ],
         [
             'label' => 'Template',
             'route' => 'template.index',
             'active' => ['template.index', 'template.create', 'template.show', 'template.edit'],
             'icon' => 'template',
+            'roles' => ['admin', 'superadmin'],
         ],
         [
             'label' => 'Phone',
             'route' => 'phone-number.index',
             'active' => ['phone-number.index', 'phone-number.create', 'phone-number.show', 'phone-number.edit'],
             'icon' => 'phone',
+            'roles' => ['admin', 'superadmin'],
         ],
         [
             'label' => 'cPanel',
             'route' => 'cpanel-account.index',
             'active' => ['cpanel-account.index', 'cpanel-account.create', 'cpanel-account.show', 'cpanel-account.edit'],
             'icon' => 'cpanel',
+            'roles' => ['admin', 'superadmin'],
         ],
     ];
 
@@ -69,7 +74,6 @@
 
     $mobileMenus = collect($mobileMenus)
         ->filter(fn($menu) => !isset($menu['roles']) || in_array(Auth::user()->role, $menu['roles'], true))
-        ->filter(fn($menu) => !in_array($menu['route'], ['guardian.index', 'article.index', 'template.index', 'phone-number.index', 'cpanel-account.index'], true) || Auth::user()->isAdminLevel())
         ->values();
 @endphp
 <div x-data="{ isOpen: false }" class=" flex sm:hidden">

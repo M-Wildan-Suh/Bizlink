@@ -17,6 +17,7 @@
                     'label' => 'Domain',
                     'route' => 'guardian.index',
                     'active' => ['guardian.index', 'guardian.create', 'guardian.show', 'guardian.edit'],
+                    'roles' => ['admin', 'superadmin'],
                 ],
                 [
                     'label' => 'Article',
@@ -34,24 +35,27 @@
                         'article.spintax.filter',
                         'article.unique.filter',
                     ],
+                    'roles' => ['user', 'admin', 'superadmin'],
                 ],
                 [
                     'label' => 'Template',
                     'route' => 'template.index',
                     'active' => ['template.index', 'template.create', 'template.show', 'template.edit'],
+                    'roles' => ['admin', 'superadmin'],
                 ],
                 [
                     'label' => 'Phone Number',
                     'route' => 'phone-number.index',
                     'active' => ['phone-number.index', 'phone-number.create', 'phone-number.show', 'phone-number.edit'],
+                    'roles' => ['admin', 'superadmin'],
                 ],
                 [
                     'label' => 'cPanel Account',
                     'route' => 'cpanel-account.index',
                     'active' => ['cpanel-account.index', 'cpanel-account.create', 'cpanel-account.show', 'cpanel-account.edit'],
+                    'roles' => ['admin', 'superadmin'],
                 ],
             ],
-            'roles' => ['admin', 'superadmin'],
         ],
         [
             'type' => 'accordion',
@@ -80,7 +84,18 @@
     ];
 
     $desktopMenus = collect($desktopMenus)
+        ->map(function ($menu) {
+            if (($menu['type'] ?? null) === 'accordion') {
+                $menu['items'] = collect($menu['items'])
+                    ->filter(fn($item) => !isset($item['roles']) || in_array(Auth::user()->role, $item['roles'], true))
+                    ->values()
+                    ->all();
+            }
+
+            return $menu;
+        })
         ->filter(fn($menu) => !isset($menu['roles']) || in_array(Auth::user()->role, $menu['roles'], true))
+        ->filter(fn($menu) => ($menu['type'] ?? null) !== 'accordion' || !empty($menu['items']))
         ->values();
 
     $accordionMenus = $desktopMenus->where('type', 'accordion')->values();

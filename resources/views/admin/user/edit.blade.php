@@ -28,13 +28,6 @@
                 <p class=" font-semibold text-lg pt-2">Ganti Password (opsional)</p>
                 <div class="w-full">
                     <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
-                        <label for="password_old">Old Password</label>
-                        <input type="password" id="password_old" name="password_old" placeholder="Input Password Lama..." value="{{old('password_old')}}" 
-                            class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">
-                    </div>
-                </div>
-                <div class="w-full">
-                    <div class="flex flex-col gap-2 text-sm sm:text-base font-medium">
                         <label for="password">New Password</label>
                         <input type="password" id="password" name="password" placeholder="Input Password Baru..." value="{{old('password')}}"
                             class="text-sm sm:text-base font-normal rounded-md border border-byolink-1 focus:ring-byolink-3 focus:border-byolink-3 bg-neutral-100">
