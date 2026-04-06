@@ -137,6 +137,14 @@
                                 chart: null,
 
                                 init() {
+                                    const trafficData = @json($traffic['values']);
+                                    const waTrafficData = @json($traffic['waValues']);
+                                    const labels = @json($traffic['labels']);
+
+                                    console.log('Labels:', labels);
+                                    console.log('Article Data:', trafficData);
+                                    console.log('WhatsApp Data:', waTrafficData);
+
                                     const options = {
                                         chart: {
                                             type: "line",
@@ -148,11 +156,14 @@
 
                                         series: [{
                                             name: "Article Access",
-                                            data: @json($traffic['values']) // ← nilai traffic
+                                            data: trafficData
+                                        }, {
+                                            name: "WhatsApp Access",
+                                            data: waTrafficData
                                         }],
 
                                         xaxis: {
-                                            categories: @json($traffic['labels']), // ← label jam/hari/tanggal
+                                            categories: labels,
                                             labels: {
                                                 style: {
                                                     rotate: 0,
@@ -185,7 +196,11 @@
                                             curve: "straight"
                                         },
 
-                                        colors: ["#3b82f6"],
+                                        colors: ["#3b82f6", "#22c55e"],
+                                        legend: {
+                                            show: true,
+                                            position: "bottom"
+                                        },
                                         grid: {
                                             borderColor: "#E5E7EB"
                                         },

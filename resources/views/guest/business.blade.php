@@ -146,7 +146,7 @@
                         </a>
                     @endif
                     @if ($data->whatsapp)
-                        <a href="https://wa.me/{{ $data->no_tlp }}?text={{ urlencode('Halo saya dapat info dari ' . url()->current()) }}"
+                        <a href="{{ route('whatsapp', ['id' => $data->id, 'phone' => $data->no_tlp]) }}"
                             target="__blank"
                             class="flex items-center justify-center rounded-full bg-green-500 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-green-600 sm:text-base">
                             WhatsApp

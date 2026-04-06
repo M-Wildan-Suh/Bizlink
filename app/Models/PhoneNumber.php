@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class PhoneNumber extends Model
 {
     use HasFactory;
-    protected $fillable = ['no_tlp', 'type'];
+    protected $fillable = ['no_tlp', 'chat'];
     public function article()
     {
         return $this->hasMany(ArticleShow::class);
