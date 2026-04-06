@@ -63,7 +63,7 @@
                                 </div>
                             </div>
                         </a>
-                        <a href="{{ route('guardian-index') }}">
+                        <a href="{{ route('guardian.index') }}">
                             <div class="w-full flex justify-center">
                                 <div
                                     class=" relative text-xs sm:text-sm text-neutral-600 hover:text-byolink-1 duration-300 flex flex-col items-center text-center gap-1 sm:gap-2">
